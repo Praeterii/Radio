@@ -37,8 +37,11 @@ private fun RadioApp(viewModel: RadioViewModel = viewModel()) {
         currentCountryCode = viewModel.currentCountryCode,
         currentMediaItem = viewModel.currentMediaItem,
         isPlaying = viewModel.isPlaying,
+        isLoading = viewModel.isLoading,
+        errorMessage = viewModel.errorMessage,
         onStationClick = { viewModel.playStation(it) },
         onToggleLocale = { viewModel.toggleLocale() },
-        onTogglePlayPause = { viewModel.togglePlayPause() }
+        onTogglePlayPause = { viewModel.togglePlayPause() },
+        onRetry = { viewModel.loadStations() }
     )
 }

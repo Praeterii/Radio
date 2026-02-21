@@ -23,6 +23,14 @@ android {
     }
 
     buildTypes {
+        create("beta") {
+            initWith(getByName("debug"))
+            signingConfig = signingConfigs.getByName("debug")
+            isMinifyEnabled = true
+            applicationIdSuffix = ".beta"
+            versionNameSuffix = "-beta"
+        }
+
         release {
             isMinifyEnabled = false
             proguardFiles(

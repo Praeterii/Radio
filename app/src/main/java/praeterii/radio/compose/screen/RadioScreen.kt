@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -54,9 +55,12 @@ internal fun RadioScreen(
     currentCountryCode: String,
     currentMediaItem: MediaItem?,
     isPlaying: Boolean,
+    isLoading: Boolean,
+    errorMessage: String?,
     onStationClick: (RadioBrowserStation) -> Unit,
     onToggleLocale: () -> Unit,
-    onTogglePlayPause: () -> Unit
+    onTogglePlayPause: () -> Unit,
+    onRetry: () -> Unit
 ) {
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -99,46 +103,60 @@ internal fun RadioScreen(
             }
         }
     ) { paddingValues ->
-        Row(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-            ) {
-                items(stations) { station ->
-                    StationItem(
-                        station = station,
-                        onClick = { onStationClick(station) }
-                    )
-                }
-            }
-
-            AnimatedVisibility(
-                visible = isLandscape && currentMediaItem != null,
-                enter = expandHorizontally(expandFrom = Alignment.End) + fadeIn(),
-                exit = shrinkHorizontally(shrinkTowards = Alignment.End) + fadeOut()
-            ) {
-                if (currentMediaItem != null) {
-                    Surface(
-                        tonalElevation = 8.dp,
-                        shadowElevation = 8.dp,
+            if (isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            } else if (errorMessage != null) {
+                ErrorState(
+                    message = errorMessage,
+                    onRetry = onRetry,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    LazyColumn(
                         modifier = Modifier
-                            .width(320.dp)
+                            .weight(1f)
                             .fillMaxHeight()
                     ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            NowPlayingBar(
-                                mediaItem = currentMediaItem,
-                                isPlaying = isPlaying,
-                                onTogglePlayPause = onTogglePlayPause
+                        items(stations) { station ->
+                            StationItem(
+                                station = station,
+                                onClick = { onStationClick(station) }
                             )
+                        }
+                    }
+
+                    AnimatedVisibility(
+                        visible = isLandscape && currentMediaItem != null,
+                        enter = expandHorizontally(expandFrom = Alignment.End) + fadeIn(),
+                        exit = shrinkHorizontally(shrinkTowards = Alignment.End) + fadeOut()
+                    ) {
+                        if (currentMediaItem != null) {
+                            Surface(
+                                tonalElevation = 8.dp,
+                                shadowElevation = 8.dp,
+                                modifier = Modifier
+                                    .width(320.dp)
+                                    .fillMaxHeight()
+                            ) {
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier.fillMaxSize()
+                                ) {
+                                    NowPlayingBar(
+                                        mediaItem = currentMediaItem,
+                                        isPlaying = isPlaying,
+                                        onTogglePlayPause = onTogglePlayPause
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -171,9 +189,12 @@ private fun RadioScreenPreview(
                         .build()
                 },
                 isPlaying = state.isPlaying,
+                isLoading = false,
+                errorMessage = null,
                 onStationClick = {},
                 onToggleLocale = {},
-                onTogglePlayPause = {}
+                onTogglePlayPause = {},
+                onRetry = {}
             )
         }
     }

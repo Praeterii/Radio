@@ -1,12 +1,16 @@
+@file:Suppress("unused")
+
 package praeterii.radio
 
 import android.app.Application
 import android.content.ComponentName
+import androidx.annotation.Keep
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.MimeTypes
@@ -17,9 +21,14 @@ import com.google.common.util.concurrent.ListenableFuture
 import com.r.cohen.radiobrowserandroid.RadioBrowserApi
 import com.r.cohen.radiobrowserandroid.models.RadioBrowserOrder
 import com.r.cohen.radiobrowserandroid.models.RadioBrowserStation
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import praeterii.radio.playback.PlaybackService
 import praeterii.radio.repository.LocaleRepository
 
+@Keep
+@Suppress("Unused")
 class RadioViewModel(application: Application) : AndroidViewModel(application) {
     private val api by lazy { RadioBrowserApi() }
     val localeRepository by lazy { LocaleRepository(application) }
@@ -34,6 +43,11 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
     var currentMediaItem by mutableStateOf<MediaItem?>(null)
         private set
     var isPlaying by mutableStateOf(false)
+        private set
+
+    var errorMessage by mutableStateOf<String?>(null)
+        private set
+    var isLoading by mutableStateOf(false)
         private set
 
     private val playerListener = object : Player.Listener {
@@ -60,14 +74,27 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun loadStations() {
+        errorMessage = null
+        isLoading = true
         api.getStationsByCountry(
             countryCode = currentCountryCode,
             limit = 1000,
             order = RadioBrowserOrder.BY_CLICKCOUNT,
             onSuccess = { result ->
-                stations = result.filter { station -> station.url.contains("https://") }
+                viewModelScope.launch(Dispatchers.Default) {
+                    val filtered = result.filter { station -> station.url.contains("https://") }
+                    withContext(Dispatchers.Main) {
+                        stations = filtered
+                        isLoading = false
+                    }
+                }
             },
-            onFail = { /* Handle error */ }
+            onFail = { error ->
+                viewModelScope.launch(Dispatchers.Main) {
+                    errorMessage = error ?: "Failed to load stations"
+                    isLoading = false
+                }
+            }
         )
     }
 
