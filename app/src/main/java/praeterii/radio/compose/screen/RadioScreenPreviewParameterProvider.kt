@@ -30,7 +30,19 @@ class RadioScreenPreviewParameterProvider : PreviewParameterProvider<RadioScreen
                     language = "polish"
                 )
             ),
-            currentCountryCode = "PL"
+            currentCountryCode = "PL",
+            currentlyPlayingStation = RadioBrowserStation(
+                stationuuid = "uuid1",
+                name = "RMF FM",
+                url = "https://example.com/1",
+                url_resolved = "https://example.com/1",
+                homepage = "https://rmf.fm",
+                favicon = "https://example.com/favicon.ico",
+                tags = "pop, news",
+                country = "Poland",
+                language = "polish"
+            ),
+            isPlaying = true
         ),
         RadioScreenPreviewState(
             stations = listOf(
@@ -46,12 +58,15 @@ class RadioScreenPreviewParameterProvider : PreviewParameterProvider<RadioScreen
                     language = "english"
                 )
             ),
-            currentCountryCode = "US"
+            currentCountryCode = "US",
+            isPlaying = true
         )
     )
 }
 
 data class RadioScreenPreviewState(
     val stations: List<RadioBrowserStation>,
-    val currentCountryCode: String
+    val currentCountryCode: String,
+    val currentlyPlayingStation: RadioBrowserStation? = null,
+    val isPlaying: Boolean = false
 )

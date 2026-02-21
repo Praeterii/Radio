@@ -1,10 +1,12 @@
 package praeterii.radio.compose.station
 
+import android.content.res.Configuration
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -20,8 +22,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Devices.TABLET
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.MediaItem
@@ -39,6 +44,33 @@ internal fun NowPlayingBar(
     onTogglePlayPause: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+    if (isLandscape) {
+        NowPlayingLandscape(
+            mediaItem = mediaItem,
+            isPlaying = isPlaying,
+            onTogglePlayPause = onTogglePlayPause,
+            modifier = modifier
+        )
+    } else {
+        NowPlayingPortrait(
+            mediaItem = mediaItem,
+            isPlaying = isPlaying,
+            onTogglePlayPause = onTogglePlayPause,
+            modifier = modifier
+        )
+    }
+}
+
+@Composable
+private fun NowPlayingPortrait(
+    mediaItem: MediaItem,
+    isPlaying: Boolean,
+    onTogglePlayPause: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val metadata = mediaItem.mediaMetadata
     Surface(
         tonalElevation = 8.dp,
@@ -51,36 +83,11 @@ internal fun NowPlayingBar(
                 .padding(8.dp)
                 .fillMaxWidth()
         ) {
-            val placeholderTint = if (isSystemInDarkTheme()) {
-                MaterialTheme.colorScheme.onSurface
-            } else {
-                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-            }
-
-            SubcomposeAsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(metadata.artworkUri)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(MaterialTheme.shapes.small)
-            ) {
-                val state = painter.state
-                if (state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error) {
-                    Icon(
-                        imageVector = Icons.Default.PlayArrow,
-                        contentDescription = null,
-                        tint = placeholderTint,
-                        modifier = Modifier
-                            .size(48.dp)
-                            .padding(8.dp)
-                    )
-                } else {
-                    SubcomposeAsyncImageContent()
-                }
-            }
+            StationFavicon(
+                artworkUri = metadata.artworkUri?.toString(),
+                size = 48.dp,
+                clipShape = MaterialTheme.shapes.small
+            )
 
             Text(
                 text = metadata.title?.toString() ?: "Unknown Station",
@@ -92,22 +99,118 @@ internal fun NowPlayingBar(
                     .padding(horizontal = 12.dp)
             )
 
-            IconButton(onClick = onTogglePlayPause) {
-                Icon(
-                    imageVector = if (isPlaying) {
-                        Icons.Default.Pause
-                    } else {
-                        Icons.Default.PlayArrow
-                    },
-                    contentDescription = if (isPlaying) "Pause" else "Play"
-                )
-            }
+            PlayPauseButton(
+                isPlaying = isPlaying,
+                onClick = onTogglePlayPause
+            )
         }
+    }
+}
+
+@Composable
+private fun NowPlayingLandscape(
+    mediaItem: MediaItem,
+    isPlaying: Boolean,
+    onTogglePlayPause: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val metadata = mediaItem.mediaMetadata
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = modifier
+            .padding(16.dp)
+            .fillMaxHeight()
+    ) {
+        StationFavicon(
+            artworkUri = metadata.artworkUri?.toString(),
+            size = 220.dp,
+            clipShape = MaterialTheme.shapes.medium,
+            padding = 24.dp
+        )
+
+        Text(
+            text = metadata.title?.toString() ?: "Unknown Station",
+            style = MaterialTheme.typography.headlineSmall,
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(top = 16.dp)
+        )
+
+        PlayPauseButton(
+            isPlaying = isPlaying,
+            onClick = onTogglePlayPause,
+            modifier = Modifier
+                .padding(top = 16.dp)
+                .size(64.dp),
+            iconSize = 48.dp
+        )
+    }
+}
+
+@Composable
+private fun StationFavicon(
+    artworkUri: String?,
+    size: androidx.compose.ui.unit.Dp,
+    clipShape: androidx.compose.ui.graphics.Shape,
+    modifier: Modifier = Modifier,
+    padding: androidx.compose.ui.unit.Dp = 8.dp
+) {
+    val placeholderTint = if (isSystemInDarkTheme()) {
+        MaterialTheme.colorScheme.onSurface
+    } else {
+        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+    }
+
+    SubcomposeAsyncImage(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(artworkUri)
+            .crossfade(true)
+            .build(),
+        contentDescription = null,
+        modifier = modifier
+            .size(size)
+            .clip(clipShape)
+    ) {
+        val state = painter.state
+        if (state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error) {
+            Icon(
+                imageVector = Icons.Default.PlayArrow,
+                contentDescription = null,
+                tint = placeholderTint,
+                modifier = Modifier
+                    .size(size)
+                    .padding(padding)
+            )
+        } else {
+            SubcomposeAsyncImageContent()
+        }
+    }
+}
+
+@Composable
+private fun PlayPauseButton(
+    isPlaying: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    iconSize: androidx.compose.ui.unit.Dp = 24.dp
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = modifier
+    ) {
+        Icon(
+            imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+            contentDescription = if (isPlaying) "Pause" else "Play",
+            modifier = Modifier.size(iconSize)
+        )
     }
 }
 
 @Preview
 @Preview(uiMode = UI_MODE_NIGHT_YES)
+@Preview(device = TABLET, showBackground = true)
 @Composable
 private fun NowPlayingBarPreview() {
     RadioTheme {
