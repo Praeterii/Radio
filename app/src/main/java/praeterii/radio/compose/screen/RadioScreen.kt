@@ -2,6 +2,8 @@ package praeterii.radio.compose.screen
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -23,9 +25,11 @@ import androidx.compose.ui.tooling.preview.Devices.TABLET
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import androidx.media3.common.MediaItem
 import com.murgupluoglu.flagkit.FlagKit
 import com.r.cohen.radiobrowserandroid.models.RadioBrowserStation
 import praeterii.radio.R
+import praeterii.radio.compose.station.NowPlayingBar
 import praeterii.radio.compose.station.StationItem
 import praeterii.radio.ui.theme.RadioTheme
 
@@ -34,8 +38,11 @@ import praeterii.radio.ui.theme.RadioTheme
 internal fun RadioScreen(
     stations: List<RadioBrowserStation>,
     currentCountryCode: String,
+    currentMediaItem: MediaItem?,
+    isPlaying: Boolean,
     onStationClick: (RadioBrowserStation) -> Unit,
-    onToggleLocale: () -> Unit
+    onToggleLocale: () -> Unit,
+    onTogglePlayPause: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -58,11 +65,20 @@ internal fun RadioScreen(
                     }
                 }
             )
+        },
+        bottomBar = {
+            if (currentMediaItem != null) {
+                NowPlayingBar(
+                    mediaItem = currentMediaItem,
+                    isPlaying = isPlaying,
+                    onTogglePlayPause = onTogglePlayPause
+                )
+            }
         }
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(paddingValues)
         ) {
             items(stations) { station ->
@@ -78,7 +94,7 @@ internal fun RadioScreen(
 
 @Preview
 @Preview(uiMode = UI_MODE_NIGHT_YES)
-@Preview(device = TABLET )
+@Preview(device = TABLET)
 @Composable
 private fun RadioScreenPreview(
     @PreviewParameter(RadioScreenPreviewParameterProvider::class) state: RadioScreenPreviewState
@@ -88,8 +104,11 @@ private fun RadioScreenPreview(
             RadioScreen(
                 stations = state.stations,
                 currentCountryCode = state.currentCountryCode,
+                currentMediaItem = null,
+                isPlaying = false,
                 onStationClick = {},
-                onToggleLocale = {}
+                onToggleLocale = {},
+                onTogglePlayPause = {}
             )
         }
     }

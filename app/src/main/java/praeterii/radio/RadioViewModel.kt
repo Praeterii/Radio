@@ -10,6 +10,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.MimeTypes
+import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
@@ -30,10 +31,32 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
     var currentCountryCode by mutableStateOf(localeRepository.getCurrentCountryCode())
         private set
 
+    var currentMediaItem by mutableStateOf<MediaItem?>(null)
+        private set
+    var isPlaying by mutableStateOf(false)
+        private set
+
+    private val playerListener = object : Player.Listener {
+        override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+            currentMediaItem = mediaItem
+        }
+
+        override fun onIsPlayingChanged(playing: Boolean) {
+            isPlaying = playing
+        }
+    }
+
     init {
         val sessionToken =
             SessionToken(application, ComponentName(application, PlaybackService::class.java))
         controllerFuture = MediaController.Builder(application, sessionToken).buildAsync()
+        controllerFuture?.addListener({
+            controller?.let {
+                it.addListener(playerListener)
+                currentMediaItem = it.currentMediaItem
+                isPlaying = it.isPlaying
+            }
+        }, application.mainExecutor)
     }
 
     fun loadStations() {
@@ -57,10 +80,11 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
 
     fun playStation(station: RadioBrowserStation) {
         val mediaItem = MediaItem.Builder()
+            .setMediaId(station.stationuuid)
             .setUri(station.url)
             .setMediaMetadata(
                 MediaMetadata.Builder()
-                    .setArtist(station.name)
+                    .setTitle(station.name)
                     .setArtworkUri(station.favicon.toUri())
                     .build()
             )
@@ -78,8 +102,19 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun togglePlayPause() {
+        controller?.let {
+            if (it.isPlaying) {
+                it.pause()
+            } else {
+                it.play()
+            }
+        }
+    }
+
     override fun onCleared() {
         super.onCleared()
+        controller?.removeListener(playerListener)
         controllerFuture?.let {
             MediaController.releaseFuture(it)
         }
