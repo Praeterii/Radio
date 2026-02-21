@@ -2,6 +2,13 @@ package praeterii.radio.compose.screen
 
 import android.content.res.Configuration
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -77,12 +84,18 @@ internal fun RadioScreen(
             )
         },
         bottomBar = {
-            if (currentMediaItem != null && !isLandscape) {
-                NowPlayingBar(
-                    mediaItem = currentMediaItem,
-                    isPlaying = isPlaying,
-                    onTogglePlayPause = onTogglePlayPause
-                )
+            AnimatedVisibility(
+                visible = currentMediaItem != null && !isLandscape,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                if (currentMediaItem != null) {
+                    NowPlayingBar(
+                        mediaItem = currentMediaItem,
+                        isPlaying = isPlaying,
+                        onTogglePlayPause = onTogglePlayPause
+                    )
+                }
             }
         }
     ) { paddingValues ->
@@ -104,23 +117,29 @@ internal fun RadioScreen(
                 }
             }
 
-            if (isLandscape && currentMediaItem != null) {
-                Surface(
-                    tonalElevation = 8.dp,
-                    shadowElevation = 8.dp,
-                    modifier = Modifier
-                        .width(320.dp)
-                        .fillMaxHeight()
-                ) {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.fillMaxSize()
+            AnimatedVisibility(
+                visible = isLandscape && currentMediaItem != null,
+                enter = expandHorizontally(expandFrom = Alignment.End) + fadeIn(),
+                exit = shrinkHorizontally(shrinkTowards = Alignment.End) + fadeOut()
+            ) {
+                if (currentMediaItem != null) {
+                    Surface(
+                        tonalElevation = 8.dp,
+                        shadowElevation = 8.dp,
+                        modifier = Modifier
+                            .width(320.dp)
+                            .fillMaxHeight()
                     ) {
-                        NowPlayingBar(
-                            mediaItem = currentMediaItem,
-                            isPlaying = isPlaying,
-                            onTogglePlayPause = onTogglePlayPause
-                        )
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            NowPlayingBar(
+                                mediaItem = currentMediaItem,
+                                isPlaying = isPlaying,
+                                onTogglePlayPause = onTogglePlayPause
+                            )
+                        }
                     }
                 }
             }

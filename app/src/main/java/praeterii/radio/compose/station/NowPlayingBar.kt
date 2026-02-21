@@ -211,6 +211,7 @@ private fun PlayPauseButton(
 @Preview
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 @Preview(device = TABLET, showBackground = true)
+@Preview(device = TABLET, uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun NowPlayingBarPreview() {
     RadioTheme {
