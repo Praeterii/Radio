@@ -1,4 +1,4 @@
-package praeterii.radio
+package praeterii.radio.playback
 
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession

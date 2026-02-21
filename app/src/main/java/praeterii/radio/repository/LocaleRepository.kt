@@ -4,7 +4,7 @@ import android.content.Context
 import java.util.Locale
 import androidx.core.content.edit
 
-class LocaleRepository(private val context: Context) {
+class LocaleRepository(context: Context) {
     private val prefs = context.getSharedPreferences("locale_prefs", Context.MODE_PRIVATE)
 
     fun getCurrentCountryCode(): String {

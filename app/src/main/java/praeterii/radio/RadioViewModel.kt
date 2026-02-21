@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import com.r.cohen.radiobrowserandroid.RadioBrowserApi
 import com.r.cohen.radiobrowserandroid.models.RadioBrowserOrder
 import com.r.cohen.radiobrowserandroid.models.RadioBrowserStation
+import praeterii.radio.playback.PlaybackService
 import praeterii.radio.repository.LocaleRepository
 
 class RadioViewModel(application: Application) : AndroidViewModel(application) {
