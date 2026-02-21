@@ -23,10 +23,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.r.cohen.radiobrowserandroid.models.RadioBrowserStation
 import praeterii.radio.ui.theme.RadioTheme
 import java.util.Locale
@@ -67,7 +71,7 @@ private fun RadioScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Radio") },
+                title = { Text(stringResource(R.string.app_name)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -104,8 +108,13 @@ private fun StationItem(
             .padding(8.dp)
     ) {
         AsyncImage(
-            model = station.favicon,
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(station.favicon)
+                .crossfade(true)
+                .build(),
             contentDescription = null,
+            placeholder = painterResource(R.drawable.ic_launcher_foreground),
+            error = painterResource(R.drawable.ic_launcher_foreground),
             modifier = Modifier
                 .size(32.dp)
                 .padding(end = 8.dp)
