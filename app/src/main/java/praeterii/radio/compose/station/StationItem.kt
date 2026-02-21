@@ -2,12 +2,15 @@ package praeterii.radio.compose.station
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,9 +25,6 @@ import coil.compose.SubcomposeAsyncImageContent
 import coil.request.ImageRequest
 import com.r.cohen.radiobrowserandroid.models.RadioBrowserStation
 import praeterii.radio.ui.theme.RadioTheme
-import androidx.compose.material3.Icon
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
 
 @Composable
 internal fun StationItem(
@@ -37,13 +37,11 @@ internal fun StationItem(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(8.dp)
+            .padding(12.dp)
     ) {
         val placeholderTint = if (isSystemInDarkTheme()) {
-            // In dark mode use the full onSurface color for contrast
             MaterialTheme.colorScheme.onSurface
         } else {
-            // In light mode use a slightly muted onSurface to look like a placeholder
             MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
         }
 
@@ -54,27 +52,27 @@ internal fun StationItem(
                 .build(),
             contentDescription = null,
             modifier = Modifier
-                .size(32.dp)
-                .padding(end = 8.dp)
+                .size(48.dp)
+                .padding(end = 12.dp)
         ) {
             val state = painter.state
             if (state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error) {
-                // Show a tinted icon while loading or on error
                 Icon(
                     imageVector = Icons.Default.PlayArrow,
                     contentDescription = null,
                     tint = placeholderTint,
-                    modifier = Modifier
-                        .size(32.dp)
+                    modifier = Modifier.size(48.dp)
                 )
             } else {
                 SubcomposeAsyncImageContent(
-                    modifier = Modifier
-                        .size(32.dp)
+                    modifier = Modifier.size(48.dp)
                 )
             }
         }
-        Text(text = station.name)
+        Text(
+            text = station.name,
+            style = MaterialTheme.typography.titleMedium
+        )
     }
 }
 
