@@ -29,10 +29,11 @@ android {
             isMinifyEnabled = true
             applicationIdSuffix = ".beta"
             versionNameSuffix = "-beta"
+            setProguardFiles(getByName("release").proguardFiles)
         }
 
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
