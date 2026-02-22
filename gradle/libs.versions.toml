@@ -10,7 +10,7 @@ uiTooling = "1.10.3"
 radio-browser = "1.0.10"
 lifecycle = "2.10.0"
 coil = "2.7.0"
-media3 = "1.5.1"
+media3 = "1.9.2"
 flagkit = "1.2.0"
 
 [libraries]
