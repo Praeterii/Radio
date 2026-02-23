@@ -50,6 +50,9 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
     var isLoading by mutableStateOf(false)
         private set
 
+    var isNowPlayingBarVisible by mutableStateOf(false)
+        private set
+
     private val playerListener = object : Player.Listener {
         override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
             currentMediaItem = mediaItem
@@ -123,6 +126,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
             }
             .build()
 
+        isNowPlayingBarVisible = true
         controller?.let { controller ->
             controller.setMediaItem(mediaItem)
             controller.prepare()

@@ -35,9 +35,11 @@ private fun RadioApp(viewModel: RadioViewModel = viewModel()) {
     RadioScreen(
         stations = viewModel.stations,
         currentCountryCode = viewModel.currentCountryCode,
-        currentMediaItem = viewModel.currentMediaItem,
+        title = viewModel.currentMediaItem?.mediaMetadata?.artist?.toString() ?: "Unknown Station",
+        artworkUri = viewModel.currentMediaItem?.mediaMetadata?.artworkUri?.toString(),
         isPlaying = viewModel.isPlaying,
         isLoading = viewModel.isLoading,
+        showPlayerBar = viewModel.isNowPlayingBarVisible,
         errorMessage = viewModel.errorMessage,
         onStationClick = { viewModel.playStation(it) },
         onToggleLocale = { viewModel.toggleLocale() },

@@ -43,22 +43,21 @@ import androidx.compose.ui.tooling.preview.Devices.TABLET
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
 import com.murgupluoglu.flagkit.FlagKit
 import praeterii.radio.model.RadioStation
 import praeterii.radio.R
 import praeterii.radio.compose.station.NowPlayingBar
 import praeterii.radio.compose.station.StationItem
 import praeterii.radio.theme.RadioTheme
-import androidx.core.net.toUri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun RadioScreen(
     stations: List<RadioStation>,
     currentCountryCode: String,
-    currentMediaItem: MediaItem?,
+    title: String,
+    artworkUri: String?,
+    showPlayerBar: Boolean,
     isPlaying: Boolean,
     isLoading: Boolean,
     errorMessage: String?,
@@ -94,18 +93,16 @@ internal fun RadioScreen(
         },
         bottomBar = {
             AnimatedVisibility(
-                visible = currentMediaItem != null && !isLandscape,
+                visible = showPlayerBar && !isLandscape,
                 enter = expandVertically() + fadeIn(),
                 exit = shrinkVertically() + fadeOut()
             ) {
-                if (currentMediaItem != null) {
-                    NowPlayingBar(
-                        title = currentMediaItem.mediaMetadata.title?.toString() ?: "Unknown station",
-                        artworkUri = currentMediaItem.mediaMetadata.artworkUri?.toString(),
-                        isPlaying = isPlaying,
-                        onTogglePlayPause = onTogglePlayPause
-                    )
-                }
+                NowPlayingBar(
+                    title = title,
+                    artworkUri = artworkUri,
+                    isPlaying = isPlaying,
+                    onTogglePlayPause = onTogglePlayPause
+                )
             }
         }
     ) { paddingValues ->
@@ -143,11 +140,10 @@ internal fun RadioScreen(
                     }
 
                     AnimatedVisibility(
-                        visible = isLandscape && currentMediaItem != null,
+                        visible = isLandscape && showPlayerBar,
                         enter = expandHorizontally(expandFrom = Alignment.End) + fadeIn(),
                         exit = shrinkHorizontally(shrinkTowards = Alignment.End) + fadeOut()
                     ) {
-                        if (currentMediaItem != null) {
                             Surface(
                                 tonalElevation = 8.dp,
                                 shadowElevation = 8.dp,
@@ -160,14 +156,13 @@ internal fun RadioScreen(
                                     modifier = Modifier.fillMaxSize()
                                 ) {
                                     NowPlayingBar(
-                                        title = currentMediaItem.mediaMetadata.title?.toString() ?: "Unknown station",
-                                        artworkUri = currentMediaItem.mediaMetadata.artworkUri?.toString(),
+                                        title = title,
+                                        artworkUri = artworkUri,
                                         isPlaying = isPlaying,
                                         onTogglePlayPause = onTogglePlayPause
                                     )
                                 }
                             }
-                        }
                     }
                 }
             }
@@ -207,18 +202,11 @@ private fun RadioScreenPreview(
             RadioScreen(
                 stations = state.stations,
                 currentCountryCode = state.currentCountryCode,
-                currentMediaItem = state.currentlyPlayingStation?.let { station ->
-                    MediaItem.Builder()
-                        .setMediaMetadata(
-                            MediaMetadata.Builder()
-                                .setTitle(station.name)
-                                .setArtworkUri(station.favicon.toUri())
-                                .build()
-                        )
-                        .build()
-                },
+                title = state.currentlyPlayingStation?.name ?: "Unknown station",
+                artworkUri = null,
                 isPlaying = state.isPlaying,
                 isLoading = false,
+                showPlayerBar = state.currentlyPlayingStation != null,
                 errorMessage = null,
                 onStationClick = {},
                 onToggleLocale = {},
