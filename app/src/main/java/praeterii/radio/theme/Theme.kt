@@ -1,4 +1,4 @@
-package praeterii.radio.ui.theme
+package praeterii.radio.theme
 
 import android.app.Activity
 import android.os.Build

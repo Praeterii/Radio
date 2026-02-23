@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -17,18 +15,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
 import coil.request.ImageRequest
-import com.r.cohen.radiobrowserandroid.models.RadioBrowserStation
-import praeterii.radio.ui.theme.RadioTheme
+import praeterii.radio.model.RadioStation
+import praeterii.radio.R
+import praeterii.radio.theme.RadioTheme
 
 @Composable
 internal fun StationItem(
-    station: RadioBrowserStation,
+    station: RadioStation,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -58,7 +58,7 @@ internal fun StationItem(
             val state = painter.state
             if (state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error) {
                 Icon(
-                    imageVector = Icons.Default.PlayArrow,
+                    painter = painterResource(id = R.drawable.image_24px),
                     contentDescription = null,
                     tint = placeholderTint,
                     modifier = Modifier.size(48.dp)
@@ -83,7 +83,7 @@ private fun StationItemPreview() {
     RadioTheme {
         Surface {
             StationItem(
-                station = RadioBrowserStation(
+                station = RadioStation(
                     stationuuid = "uuid1",
                     name = "RMF FM",
                     url = "https://example.com/1",

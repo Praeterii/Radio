@@ -18,9 +18,9 @@ import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
-import com.r.cohen.radiobrowserandroid.RadioBrowserApi
-import com.r.cohen.radiobrowserandroid.models.RadioBrowserOrder
-import com.r.cohen.radiobrowserandroid.models.RadioBrowserStation
+import praeterii.radio.repository.RadioBrowserApi
+import praeterii.radio.model.RadioStationOrder
+import praeterii.radio.model.RadioStation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -36,7 +36,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
     private val controller: MediaController?
         get() = if (controllerFuture?.isDone == true) controllerFuture?.get() else null
 
-    var stations by mutableStateOf<List<RadioBrowserStation>>(emptyList())
+    var stations by mutableStateOf<List<RadioStation>>(emptyList())
     var currentCountryCode by mutableStateOf(localeRepository.getCurrentCountryCode())
         private set
 
@@ -79,7 +79,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         api.getStationsByCountry(
             countryCode = currentCountryCode,
             limit = 1000,
-            order = RadioBrowserOrder.BY_CLICKCOUNT,
+            order = RadioStationOrder.CLICKCOUNT,
             onSuccess = { result ->
                 viewModelScope.launch(Dispatchers.Default) {
                     val filtered = result.filter { station -> station.url.contains("https://") }
@@ -99,19 +99,20 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun toggleLocale() {
+        // TODO replace with current locale and secondary locale
         val newCode = if (currentCountryCode == "PL") "US" else "PL"
         localeRepository.setOverrideCountryCode(newCode)
         currentCountryCode = newCode
         loadStations()
     }
 
-    fun playStation(station: RadioBrowserStation) {
+    fun playStation(station: RadioStation) {
         val mediaItem = MediaItem.Builder()
             .setMediaId(station.stationuuid)
             .setUri(station.url)
             .setMediaMetadata(
                 MediaMetadata.Builder()
-                    .setTitle(station.name)
+                    .setArtist(station.name)
                     .setArtworkUri(station.favicon.toUri())
                     .build()
             )

@@ -1,13 +1,13 @@
 package praeterii.radio.compose.screen
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import com.r.cohen.radiobrowserandroid.models.RadioBrowserStation
+import praeterii.radio.model.RadioStation
 
 class RadioScreenPreviewParameterProvider : PreviewParameterProvider<RadioScreenPreviewState> {
     override val values = sequenceOf(
         RadioScreenPreviewState(
             stations = listOf(
-                RadioBrowserStation(
+                RadioStation(
                     stationuuid = "uuid1",
                     name = "RMF FM",
                     url = "https://example.com/1",
@@ -18,7 +18,7 @@ class RadioScreenPreviewParameterProvider : PreviewParameterProvider<RadioScreen
                     country = "Poland",
                     language = "polish"
                 ),
-                RadioBrowserStation(
+                RadioStation(
                     stationuuid = "uuid2",
                     name = "Radio ZET",
                     url = "https://example.com/2",
@@ -31,7 +31,7 @@ class RadioScreenPreviewParameterProvider : PreviewParameterProvider<RadioScreen
                 )
             ),
             currentCountryCode = "PL",
-            currentlyPlayingStation = RadioBrowserStation(
+            currentlyPlayingStation = RadioStation(
                 stationuuid = "uuid1",
                 name = "RMF FM",
                 url = "https://example.com/1",
@@ -46,7 +46,7 @@ class RadioScreenPreviewParameterProvider : PreviewParameterProvider<RadioScreen
         ),
         RadioScreenPreviewState(
             stations = listOf(
-                RadioBrowserStation(
+                RadioStation(
                     stationuuid = "uuid3",
                     name = "BBC Radio 1",
                     url = "https://example.com/3",
@@ -65,8 +65,8 @@ class RadioScreenPreviewParameterProvider : PreviewParameterProvider<RadioScreen
 }
 
 data class RadioScreenPreviewState(
-    val stations: List<RadioBrowserStation>,
+    val stations: List<RadioStation>,
     val currentCountryCode: String,
-    val currentlyPlayingStation: RadioBrowserStation? = null,
+    val currentlyPlayingStation: RadioStation? = null,
     val isPlaying: Boolean = false
 )

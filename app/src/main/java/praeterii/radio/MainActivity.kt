@@ -10,7 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import praeterii.radio.compose.screen.RadioScreen
-import praeterii.radio.ui.theme.RadioTheme
+import praeterii.radio.theme.RadioTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

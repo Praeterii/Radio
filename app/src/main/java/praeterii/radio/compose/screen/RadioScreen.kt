@@ -46,23 +46,23 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import com.murgupluoglu.flagkit.FlagKit
-import com.r.cohen.radiobrowserandroid.models.RadioBrowserStation
+import praeterii.radio.model.RadioStation
 import praeterii.radio.R
 import praeterii.radio.compose.station.NowPlayingBar
 import praeterii.radio.compose.station.StationItem
-import praeterii.radio.ui.theme.RadioTheme
+import praeterii.radio.theme.RadioTheme
 import androidx.core.net.toUri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun RadioScreen(
-    stations: List<RadioBrowserStation>,
+    stations: List<RadioStation>,
     currentCountryCode: String,
     currentMediaItem: MediaItem?,
     isPlaying: Boolean,
     isLoading: Boolean,
     errorMessage: String?,
-    onStationClick: (RadioBrowserStation) -> Unit,
+    onStationClick: (RadioStation) -> Unit,
     onToggleLocale: () -> Unit,
     onTogglePlayPause: () -> Unit,
     onRetry: () -> Unit

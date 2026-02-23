@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import praeterii.radio.ui.theme.RadioTheme
+import praeterii.radio.theme.RadioTheme
 
 @Composable
 internal fun ErrorState(

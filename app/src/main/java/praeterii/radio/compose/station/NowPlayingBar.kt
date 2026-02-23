@@ -10,9 +10,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -24,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Devices.TABLET
@@ -35,7 +33,8 @@ import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
 import coil.request.ImageRequest
-import praeterii.radio.ui.theme.RadioTheme
+import praeterii.radio.R
+import praeterii.radio.theme.RadioTheme
 
 @Composable
 internal fun NowPlayingBar(
@@ -176,7 +175,7 @@ private fun StationFavicon(
         val state = painter.state
         if (state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error) {
             Icon(
-                imageVector = Icons.Default.PlayArrow,
+                painter = painterResource(R.drawable.image_24px),
                 contentDescription = null,
                 tint = placeholderTint,
                 modifier = Modifier
@@ -201,7 +200,9 @@ private fun PlayPauseButton(
         modifier = modifier
     ) {
         Icon(
-            imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+            painter = painterResource(
+                id = if (isPlaying) R.drawable.pause_circle_24px else R.drawable.play_circle_24px
+            ),
             contentDescription = if (isPlaying) "Pause" else "Play",
             modifier = Modifier.size(iconSize)
         )
