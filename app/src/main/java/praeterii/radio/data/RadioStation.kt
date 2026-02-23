@@ -1,13 +1,9 @@
-package praeterii.radio.model
+package praeterii.radio.data
 
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Stable
 import kotlinx.serialization.Serializable
 
 @Suppress("PropertyName")
 @Serializable
-@Stable
-@Immutable
 data class RadioStation(
     val stationuuid: String,
     val name: String,

@@ -1,9 +1,9 @@
 package praeterii.radio.services
 
-import praeterii.radio.model.RadioStationClickResult
-import praeterii.radio.model.RadioCountry
-import praeterii.radio.model.RadioStationOrder
-import praeterii.radio.model.RadioStation
+import praeterii.radio.data.RadioStationClickResult
+import praeterii.radio.data.RadioCountry
+import praeterii.radio.data.RadioStationOrder
+import praeterii.radio.data.RadioStation
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Path

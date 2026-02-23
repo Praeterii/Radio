@@ -18,25 +18,26 @@ import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
-import praeterii.radio.repository.RadioBrowserApi
-import praeterii.radio.model.RadioStationOrder
-import praeterii.radio.model.RadioStation
+import praeterii.radio.repository.RadioStationsRepository
+import praeterii.radio.data.RadioStationOrder
+import praeterii.radio.data.RadioStation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import praeterii.radio.domain.model.RadioModel
 import praeterii.radio.playback.PlaybackService
 import praeterii.radio.repository.LocaleRepository
 
 @Keep
 @Suppress("Unused")
 class RadioViewModel(application: Application) : AndroidViewModel(application) {
-    private val api by lazy { RadioBrowserApi() }
-    val localeRepository by lazy { LocaleRepository(application) }
+    private val api by lazy { RadioStationsRepository() }
+    private val localeRepository by lazy { LocaleRepository(application) }
     private var controllerFuture: ListenableFuture<MediaController>? = null
     private val controller: MediaController?
         get() = if (controllerFuture?.isDone == true) controllerFuture?.get() else null
 
-    var stations by mutableStateOf<List<RadioStation>>(emptyList())
+    var stations by mutableStateOf<List<RadioModel>>(emptyList())
     var currentCountryCode by mutableStateOf(localeRepository.getCurrentCountryCode())
         private set
 
@@ -84,12 +85,9 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
             limit = 1000,
             order = RadioStationOrder.CLICKCOUNT,
             onSuccess = { result ->
-                viewModelScope.launch(Dispatchers.Default) {
-                    val filtered = result.filter { station -> station.url.contains("https://") }
-                    withContext(Dispatchers.Main) {
-                        stations = filtered
-                        isLoading = false
-                    }
+                viewModelScope.launch(Dispatchers.Main) {
+                    stations = result
+                    isLoading = false
                 }
             },
             onFail = { error ->
@@ -109,7 +107,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         loadStations()
     }
 
-    fun playStation(station: RadioStation) {
+    fun playStation(station: RadioModel) {
         val mediaItem = MediaItem.Builder()
             .setMediaId(station.stationuuid)
             .setUri(station.url)

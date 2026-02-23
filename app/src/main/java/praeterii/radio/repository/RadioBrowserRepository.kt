@@ -1,20 +1,22 @@
 package praeterii.radio.repository
 
 import android.util.Log
-import praeterii.radio.model.RadioStationClickResult
-import praeterii.radio.model.RadioCountry
-import praeterii.radio.model.RadioStationOrder
-import praeterii.radio.model.RadioStation
+import praeterii.radio.data.RadioStationClickResult
+import praeterii.radio.data.RadioCountry
+import praeterii.radio.data.RadioStationOrder
+import praeterii.radio.data.RadioStation
 import praeterii.radio.services.RadioStationApiService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
+import praeterii.radio.domain.model.RadioModel
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 
-class RadioBrowserApi(private val userAgent: String = "praeterii.radio") {
+class RadioStationsRepository(private val userAgent: String = "praeterii.radio") {
     private val radioBrowserService: RadioStationApiService by lazy {
         val json = Json {
             ignoreUnknownKeys = true
@@ -25,11 +27,6 @@ class RadioBrowserApi(private val userAgent: String = "praeterii.radio") {
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
             .create(RadioStationApiService::class.java)
-    }
-
-    private fun handleApiException(exception: Exception, onFail: (String?) -> Unit) {
-        Log.e(RadioBrowserApi::class.java.name, exception.message ?: "Unknown error")
-        onFail.invoke(exception.message)
     }
 
     fun getCountries(
@@ -43,6 +40,7 @@ class RadioBrowserApi(private val userAgent: String = "praeterii.radio") {
                 order = order.value
             ).let(onSuccess)
         } catch (e: Exception) {
+            ensureActive()
             handleApiException(e, onFail)
         }
     }
@@ -53,7 +51,7 @@ class RadioBrowserApi(private val userAgent: String = "praeterii.radio") {
         limit: Int = 1000,
         order: RadioStationOrder = RadioStationOrder.NAME,
         reverse: Boolean = false,
-        onSuccess: (List<RadioStation>) -> Unit,
+        onSuccess: (List<RadioModel>) -> Unit,
         onFail: (String?) -> Unit
     ) = CoroutineScope(Dispatchers.IO).launch {
         try {
@@ -64,8 +62,18 @@ class RadioBrowserApi(private val userAgent: String = "praeterii.radio") {
                 limit = limit,
                 order = order.value,
                 reverse = reverse
-            ).let(onSuccess)
+            ).filter { station ->
+                station.url.contains("https://")
+            }.map { stationModel ->
+                RadioModel(
+                    stationuuid = stationModel.stationuuid,
+                    name = stationModel.name,
+                    url = stationModel.url,
+                    favicon = stationModel.favicon
+                )
+            }.let(onSuccess)
         } catch (e: Exception) {
+            ensureActive()
             handleApiException(e, onFail)
         }
     }
@@ -89,6 +97,7 @@ class RadioBrowserApi(private val userAgent: String = "praeterii.radio") {
                 limit = limit
             ).let(onSuccess)
         } catch (e: Exception) {
+            ensureActive()
             handleApiException(e, onFail)
         }
     }
@@ -104,7 +113,13 @@ class RadioBrowserApi(private val userAgent: String = "praeterii.radio") {
                 stationUuid = stationUuid
             ).let(onSuccess)
         } catch (e: Exception) {
+            ensureActive()
             handleApiException(e, onFail)
         }
+    }
+
+    private fun handleApiException(exception: Exception, onFail: (String?) -> Unit) {
+        Log.e(RadioStationsRepository::class.java.name, exception.message ?: "Unknown error")
+        onFail.invoke(exception.message)
     }
 }

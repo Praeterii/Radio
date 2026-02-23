@@ -44,16 +44,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import com.murgupluoglu.flagkit.FlagKit
-import praeterii.radio.model.RadioStation
+import praeterii.radio.data.RadioStation
 import praeterii.radio.R
 import praeterii.radio.compose.station.NowPlayingBar
 import praeterii.radio.compose.station.StationItem
+import praeterii.radio.domain.model.RadioModel
 import praeterii.radio.theme.RadioTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun RadioScreen(
-    stations: List<RadioStation>,
+    stations: List<RadioModel>,
     currentCountryCode: String,
     title: String,
     artworkUri: String?,
@@ -61,7 +62,7 @@ internal fun RadioScreen(
     isPlaying: Boolean,
     isLoading: Boolean,
     errorMessage: String?,
-    onStationClick: (RadioStation) -> Unit,
+    onStationClick: (RadioModel) -> Unit,
     onToggleLocale: () -> Unit,
     onTogglePlayPause: () -> Unit,
     onRetry: () -> Unit

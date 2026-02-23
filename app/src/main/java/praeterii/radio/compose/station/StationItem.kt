@@ -22,13 +22,13 @@ import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
 import coil.request.ImageRequest
-import praeterii.radio.model.RadioStation
 import praeterii.radio.R
+import praeterii.radio.domain.model.RadioModel
 import praeterii.radio.theme.RadioTheme
 
 @Composable
 internal fun StationItem(
-    station: RadioStation,
+    station: RadioModel,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -83,16 +83,11 @@ private fun StationItemPreview() {
     RadioTheme {
         Surface {
             StationItem(
-                station = RadioStation(
+                station = RadioModel(
                     stationuuid = "uuid1",
                     name = "RMF FM",
                     url = "https://example.com/1",
-                    url_resolved = "https://example.com/1",
-                    homepage = "https://rmf.fm",
                     favicon = "https://example.com/favicon.ico",
-                    tags = "pop, news",
-                    country = "Poland",
-                    language = "polish"
                 ),
                 onClick = {}
             )

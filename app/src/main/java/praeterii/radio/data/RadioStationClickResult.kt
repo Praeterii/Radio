@@ -1,4 +1,4 @@
-package praeterii.radio.model
+package praeterii.radio.data
 
 import kotlinx.serialization.Serializable
 
