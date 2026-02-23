@@ -100,7 +100,8 @@ internal fun RadioScreen(
             ) {
                 if (currentMediaItem != null) {
                     NowPlayingBar(
-                        mediaItem = currentMediaItem,
+                        title = currentMediaItem.mediaMetadata.title?.toString() ?: "Unknown station",
+                        artworkUri = currentMediaItem.mediaMetadata.artworkUri?.toString(),
                         isPlaying = isPlaying,
                         onTogglePlayPause = onTogglePlayPause
                     )
@@ -159,7 +160,8 @@ internal fun RadioScreen(
                                     modifier = Modifier.fillMaxSize()
                                 ) {
                                     NowPlayingBar(
-                                        mediaItem = currentMediaItem,
+                                        title = currentMediaItem.mediaMetadata.title?.toString() ?: "Unknown station",
+                                        artworkUri = currentMediaItem.mediaMetadata.artworkUri?.toString(),
                                         isPlaying = isPlaying,
                                         onTogglePlayPause = onTogglePlayPause
                                     )

@@ -27,8 +27,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Devices.TABLET
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
@@ -38,7 +36,8 @@ import praeterii.radio.theme.RadioTheme
 
 @Composable
 internal fun NowPlayingBar(
-    mediaItem: MediaItem,
+    title: String,
+    artworkUri: String?,
     isPlaying: Boolean,
     onTogglePlayPause: () -> Unit,
     modifier: Modifier = Modifier
@@ -48,14 +47,16 @@ internal fun NowPlayingBar(
 
     if (isLandscape) {
         NowPlayingLandscape(
-            mediaItem = mediaItem,
+            title = title,
+            artworkUri = artworkUri,
             isPlaying = isPlaying,
             onTogglePlayPause = onTogglePlayPause,
             modifier = modifier
         )
     } else {
         NowPlayingPortrait(
-            mediaItem = mediaItem,
+            title = title,
+            artworkUri = artworkUri,
             isPlaying = isPlaying,
             onTogglePlayPause = onTogglePlayPause,
             modifier = modifier
@@ -65,12 +66,12 @@ internal fun NowPlayingBar(
 
 @Composable
 private fun NowPlayingPortrait(
-    mediaItem: MediaItem,
+    title: String,
+    artworkUri: String?,
     isPlaying: Boolean,
     onTogglePlayPause: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val metadata = mediaItem.mediaMetadata
     Surface(
         tonalElevation = 8.dp,
         shadowElevation = 8.dp,
@@ -83,13 +84,13 @@ private fun NowPlayingPortrait(
                 .fillMaxWidth()
         ) {
             StationFavicon(
-                artworkUri = metadata.artworkUri?.toString(),
+                artworkUri = artworkUri,
                 size = 48.dp,
                 clipShape = MaterialTheme.shapes.small
             )
 
             Text(
-                text = metadata.title?.toString() ?: "Unknown Station",
+                text = title,
                 style = MaterialTheme.typography.titleMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -108,12 +109,12 @@ private fun NowPlayingPortrait(
 
 @Composable
 private fun NowPlayingLandscape(
-    mediaItem: MediaItem,
+    title: String,
+    artworkUri: String?,
     isPlaying: Boolean,
     onTogglePlayPause: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val metadata = mediaItem.mediaMetadata
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -122,14 +123,14 @@ private fun NowPlayingLandscape(
             .fillMaxHeight()
     ) {
         StationFavicon(
-            artworkUri = metadata.artworkUri?.toString(),
+            artworkUri = artworkUri,
             size = 220.dp,
             clipShape = MaterialTheme.shapes.medium,
             padding = 24.dp
         )
 
         Text(
-            text = metadata.title?.toString() ?: "Unknown Station",
+            text = title,
             style = MaterialTheme.typography.headlineSmall,
             textAlign = TextAlign.Center,
             maxLines = 2,
@@ -217,13 +218,8 @@ private fun PlayPauseButton(
 private fun NowPlayingBarPreview() {
     RadioTheme {
         NowPlayingBar(
-            mediaItem = MediaItem.Builder()
-                .setMediaMetadata(
-                    MediaMetadata.Builder()
-                        .setTitle("RMF FM")
-                        .build()
-                )
-                .build(),
+            title = "RMF FM",
+            artworkUri = null,
             isPlaying = true,
             onTogglePlayPause = {}
         )
