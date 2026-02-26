@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Radio</string>
+    <string name="country_picker_title">Wybierz kraj</string>
+    <string name="unknown_station">Nieznana stacja</string>
+    <string name="failed_load_stations">Nie udało się załadować stacji</string>
+    <string name="failed_load_data">Nie udało się załadować danych</string>
+    <string name="retry">Spróbuj ponownie</string>
+</resources>
