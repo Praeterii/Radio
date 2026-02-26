@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.dp
 import com.murgupluoglu.flagkit.FlagKit
 import praeterii.radio.data.RadioCountry
 import praeterii.radio.R
-import praeterii.radio.compose.CountryPickerSheet
+import praeterii.radio.compose.country.CountryPickerSheet
 import praeterii.radio.compose.FadingDivider
 import praeterii.radio.compose.station.NowPlayingBar
 import praeterii.radio.compose.station.StationItem
