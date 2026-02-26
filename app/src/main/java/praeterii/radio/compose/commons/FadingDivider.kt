@@ -1,4 +1,4 @@
-package praeterii.radio.compose
+package praeterii.radio.compose.commons
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

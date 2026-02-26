@@ -46,7 +46,8 @@ import com.murgupluoglu.flagkit.FlagKit
 import praeterii.radio.data.RadioCountry
 import praeterii.radio.R
 import praeterii.radio.compose.country.CountryPickerSheet
-import praeterii.radio.compose.FadingDivider
+import praeterii.radio.compose.commons.FadingDivider
+import praeterii.radio.compose.commons.ErrorState
 import praeterii.radio.compose.station.NowPlayingBar
 import praeterii.radio.compose.station.StationItem
 import praeterii.radio.domain.model.RadioModel
