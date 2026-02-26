@@ -20,10 +20,9 @@ import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
 import praeterii.radio.repository.RadioStationsRepository
 import praeterii.radio.data.RadioStationOrder
-import praeterii.radio.data.RadioStation
+import praeterii.radio.data.RadioCountry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import praeterii.radio.domain.model.RadioModel
 import praeterii.radio.playback.PlaybackService
 import praeterii.radio.repository.LocaleRepository
@@ -39,6 +38,11 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
 
     var stations by mutableStateOf<List<RadioModel>>(emptyList())
     var currentCountryCode by mutableStateOf(localeRepository.getCurrentCountryCode())
+        private set
+
+    var countries by mutableStateOf<List<RadioCountry>>(emptyList())
+        private set
+    var isCountriesLoading by mutableStateOf(false)
         private set
 
     var currentMediaItem by mutableStateOf<MediaItem?>(null)
@@ -99,11 +103,29 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
-    fun toggleLocale() {
-        // TODO replace with current locale and secondary locale
-        val newCode = if (currentCountryCode == "PL") "US" else "PL"
-        localeRepository.setOverrideCountryCode(newCode)
-        currentCountryCode = newCode
+    fun loadCountries() {
+        if (countries.isNotEmpty() || isCountriesLoading) return
+        
+        isCountriesLoading = true
+        api.getCountries(
+            order = RadioStationOrder.NAME,
+            onSuccess = { result ->
+                viewModelScope.launch(Dispatchers.Main) {
+                    countries = result.sortedBy { it.name }
+                    isCountriesLoading = false
+                }
+            },
+            onFail = {
+                viewModelScope.launch(Dispatchers.Main) {
+                    isCountriesLoading = false
+                }
+            }
+        )
+    }
+
+    fun selectCountry(country: RadioCountry) {
+        localeRepository.setOverrideCountryCode(country.iso_3166_1)
+        currentCountryCode = country.iso_3166_1
         loadStations()
     }
 

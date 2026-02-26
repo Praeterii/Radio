@@ -34,6 +34,8 @@ private fun RadioApp(viewModel: RadioViewModel = viewModel()) {
     }
     RadioScreen(
         stations = viewModel.stations,
+        countries = viewModel.countries,
+        isCountriesLoading = viewModel.isCountriesLoading,
         currentCountryCode = viewModel.currentCountryCode,
         title = viewModel.currentMediaItem?.mediaMetadata?.artist?.toString() ?: "Unknown Station",
         artworkUri = viewModel.currentMediaItem?.mediaMetadata?.artworkUri?.toString(),
@@ -42,7 +44,8 @@ private fun RadioApp(viewModel: RadioViewModel = viewModel()) {
         showPlayerBar = viewModel.isNowPlayingBarVisible,
         errorMessage = viewModel.errorMessage,
         onStationClick = { viewModel.playStation(it) },
-        onToggleLocale = { viewModel.toggleLocale() },
+        onOpenCountryPicker = { viewModel.loadCountries() },
+        onCountrySelect = { viewModel.selectCountry(it) },
         onTogglePlayPause = { viewModel.togglePlayPause() },
         onRetry = { viewModel.loadStations() }
     )
