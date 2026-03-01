@@ -4,7 +4,6 @@ import android.util.Log
 import praeterii.radio.data.RadioStationClickResult
 import praeterii.radio.data.RadioCountry
 import praeterii.radio.data.RadioStationOrder
-import praeterii.radio.data.RadioStation
 import praeterii.radio.services.RadioStationApiService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -50,21 +49,16 @@ class RadioStationsRepository(private val userAgent: String = "praeterii.radio")
         offset: Int = 0,
         limit: Int = 1000,
         order: RadioStationOrder = RadioStationOrder.NAME,
-        reverse: Boolean = false,
         onSuccess: (List<RadioModel>) -> Unit,
         onFail: (String?) -> Unit
     ) = CoroutineScope(Dispatchers.IO).launch {
         try {
-            radioBrowserService.getStationsByCountry(
+            radioBrowserService.getStations(
                 userAgent = userAgent,
-                countryCode = countryCode,
+                countrycode = countryCode,
                 offset = offset,
                 limit = limit,
-                order = order.value,
-                reverse = reverse
-            ).filter { station ->
-                station.url.contains("https://")
-            }.map { stationModel ->
+            ).map { stationModel ->
                 RadioModel(
                     stationuuid = stationModel.stationuuid,
                     name = stationModel.name,
@@ -72,30 +66,6 @@ class RadioStationsRepository(private val userAgent: String = "praeterii.radio")
                     favicon = stationModel.favicon
                 )
             }.let(onSuccess)
-        } catch (e: Exception) {
-            ensureActive()
-            handleApiException(e, onFail)
-        }
-    }
-
-    fun searchStationsByName(
-        search: String,
-        offset: Int = 0,
-        limit: Int = 1000,
-        onSuccess: (List<RadioStation>) -> Unit,
-        onFail: (String?) -> Unit
-    ) = CoroutineScope(Dispatchers.IO).launch {
-        if (search.isEmpty()) {
-            onFail.invoke("search cannot be empty")
-            return@launch
-        }
-        try {
-            radioBrowserService.getStationsBySearch(
-                userAgent = userAgent,
-                search = search,
-                offset = offset,
-                limit = limit
-            ).let(onSuccess)
         } catch (e: Exception) {
             ensureActive()
             handleApiException(e, onFail)
