@@ -29,10 +29,10 @@ interface RadioStationApiService {
         @Query("hidebroken") hideBroken: Boolean = true,
     ): List<RadioStation>
 
-    @GET("json/url/{stationUuid}")
+    @GET("json/url/{stationuuid}")
     suspend fun stationClick(
         @Header("User-Agent") userAgent: String,
-        @Path("stationUuid") stationUuid: String
+        @Path("stationuuid") stationUuid: String
     ): RadioStationClickResult
 
 }

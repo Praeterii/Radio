@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class RadioStationClickResult(
-    val ok: String,
+    val ok: Boolean,
     val message: String,
     val stationuuid: String,
     val name: String,

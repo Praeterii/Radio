@@ -4,6 +4,7 @@ package praeterii.radio
 
 import android.app.Application
 import android.content.ComponentName
+import android.util.Log
 import androidx.annotation.Keep
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -151,6 +152,16 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
             controller.prepare()
             controller.play()
         }
+
+        api.stationClick(
+            stationUuid = station.stationuuid,
+            onSuccess = { result ->
+                Log.d("RadioViewModel", "Station click registered: ${result.ok}")
+            },
+            onFail = { error ->
+                Log.e("RadioViewModel", "Failed to register station click: $error")
+            }
+        )
     }
 
     fun togglePlayPause() {
