@@ -87,7 +87,6 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         api.getStationsByCountry(
             countryCode = currentCountryCode,
             limit = 1000,
-            order = RadioStationOrder.CLICKCOUNT,
             onSuccess = { result ->
                 viewModelScope.launch(Dispatchers.Main) {
                     stations = result

@@ -48,7 +48,6 @@ class RadioStationsRepository(private val userAgent: String = "praeterii.radio")
         countryCode: String,
         offset: Int = 0,
         limit: Int = 1000,
-        order: RadioStationOrder = RadioStationOrder.NAME,
         onSuccess: (List<RadioModel>) -> Unit,
         onFail: (String?) -> Unit
     ) = CoroutineScope(Dispatchers.IO).launch {
@@ -58,12 +57,15 @@ class RadioStationsRepository(private val userAgent: String = "praeterii.radio")
                 countrycode = countryCode,
                 offset = offset,
                 limit = limit,
-            ).map { stationModel ->
+            ).distinctBy { stationModel ->
+                stationModel.url_resolved
+            }.map { stationModel ->
                 RadioModel(
                     stationuuid = stationModel.stationuuid,
                     name = stationModel.name,
-                    url = stationModel.url,
-                    favicon = stationModel.favicon
+                    url = stationModel.url_resolved,
+                    favicon = stationModel.favicon,
+                    tags = stationModel.tags.replace(",", " "),
                 )
             }.let(onSuccess)
         } catch (e: Exception) {

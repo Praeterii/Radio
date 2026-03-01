@@ -3,6 +3,7 @@ package praeterii.radio.compose.station
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImagePainter
@@ -69,10 +71,25 @@ internal fun StationItem(
                 )
             }
         }
-        Text(
-            text = station.name,
-            style = MaterialTheme.typography.titleMedium
-        )
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = station.name,
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            if (station.tags.isNotEmpty()) {
+                Text(
+                    text = station.tags,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
     }
 }
 
@@ -88,6 +105,7 @@ private fun StationItemPreview() {
                     name = "RMF FM",
                     url = "https://example.com/1",
                     favicon = "https://example.com/favicon.ico",
+                    tags = "pop, rock, news, hits"
                 ),
                 onClick = {}
             )

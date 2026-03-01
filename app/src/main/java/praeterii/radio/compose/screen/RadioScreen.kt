@@ -184,7 +184,10 @@ private fun RadioContent(
                         .weight(1f)
                         .fillMaxHeight()
                 ) {
-                    itemsIndexed(stations) { index, station ->
+                    itemsIndexed(
+                        items = stations,
+                        key = { _, station -> station.stationuuid }
+                    ) { index, station ->
                         StationItem(
                             station = station,
                             onClick = { onStationClick(station) }
