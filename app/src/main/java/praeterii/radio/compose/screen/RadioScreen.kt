@@ -12,8 +12,11 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -111,72 +114,26 @@ internal fun RadioScreen(
                     title = title,
                     artworkUri = artworkUri,
                     isPlaying = isPlaying,
-                    onTogglePlayPause = onTogglePlayPause
+                    onTogglePlayPause = onTogglePlayPause,
+                    modifier = Modifier.padding(paddingValues = WindowInsets.navigationBars.asPaddingValues())
                 )
             }
         }
     ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            if (isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            } else if (errorMessage != null) {
-                ErrorState(
-                    message = errorMessage,
-                    onRetry = onRetry,
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            } else {
-                Row(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    LazyColumn(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                    ) {
-                        itemsIndexed(stations) { index, station ->
-                            StationItem(
-                                station = station,
-                                onClick = { onStationClick(station) }
-                            )
-                            if (index < stations.lastIndex) {
-                                FadingDivider()
-                            }
-                        }
-                    }
-
-                    AnimatedVisibility(
-                        visible = isLandscape && showPlayerBar,
-                        enter = expandHorizontally(expandFrom = Alignment.End) + fadeIn(),
-                        exit = shrinkHorizontally(shrinkTowards = Alignment.End) + fadeOut()
-                    ) {
-                            Surface(
-                                tonalElevation = 8.dp,
-                                shadowElevation = 8.dp,
-                                modifier = Modifier
-                                    .width(320.dp)
-                                    .fillMaxHeight()
-                            ) {
-                                Box(
-                                    contentAlignment = Alignment.Center,
-                                    modifier = Modifier.fillMaxSize()
-                                ) {
-                                    NowPlayingBar(
-                                        title = title,
-                                        artworkUri = artworkUri,
-                                        isPlaying = isPlaying,
-                                        onTogglePlayPause = onTogglePlayPause
-                                    )
-                                }
-                            }
-                    }
-                }
-            }
-        }
+        RadioContent(
+            stations = stations,
+            title = title,
+            artworkUri = artworkUri,
+            showPlayerBar = showPlayerBar,
+            isPlaying = isPlaying,
+            isLoading = isLoading,
+            errorMessage = errorMessage,
+            isLandscape = isLandscape,
+            onStationClick = onStationClick,
+            onTogglePlayPause = onTogglePlayPause,
+            onRetry = onRetry,
+            modifier = Modifier.padding(paddingValues)
+        )
 
         if (showCountryPicker) {
             CountryPickerSheet(
@@ -188,6 +145,82 @@ internal fun RadioScreen(
                 },
                 onDismissRequest = { showCountryPicker = false }
             )
+        }
+    }
+}
+
+@Composable
+private fun RadioContent(
+    stations: List<RadioModel>,
+    title: String,
+    artworkUri: String?,
+    showPlayerBar: Boolean,
+    isPlaying: Boolean,
+    isLoading: Boolean,
+    errorMessage: String?,
+    isLandscape: Boolean,
+    onStationClick: (RadioModel) -> Unit,
+    onTogglePlayPause: () -> Unit,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier.fillMaxSize()
+    ) {
+        if (isLoading) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+        } else if (errorMessage != null) {
+            ErrorState(
+                message = errorMessage,
+                onRetry = onRetry,
+                modifier = Modifier.align(Alignment.Center)
+            )
+        } else {
+            Row(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                ) {
+                    itemsIndexed(stations) { index, station ->
+                        StationItem(
+                            station = station,
+                            onClick = { onStationClick(station) }
+                        )
+                        if (index < stations.lastIndex) {
+                            FadingDivider()
+                        }
+                    }
+                }
+
+                AnimatedVisibility(
+                    visible = isLandscape && showPlayerBar,
+                    enter = expandHorizontally(expandFrom = Alignment.End) + fadeIn(),
+                    exit = shrinkHorizontally(shrinkTowards = Alignment.End) + fadeOut()
+                ) {
+                    Surface(
+                        tonalElevation = 8.dp,
+                        shadowElevation = 8.dp,
+                        modifier = Modifier
+                            .width(320.dp)
+                            .fillMaxHeight()
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            NowPlayingBar(
+                                title = title,
+                                artworkUri = artworkUri,
+                                isPlaying = isPlaying,
+                                onTogglePlayPause = onTogglePlayPause
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
