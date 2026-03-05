@@ -51,7 +51,8 @@ import praeterii.radio.R
 import praeterii.radio.compose.country.CountryPickerSheet
 import praeterii.radio.compose.commons.FadingDivider
 import praeterii.radio.compose.commons.ErrorState
-import praeterii.radio.compose.station.NowPlayingBar
+import praeterii.radio.compose.station.NowPlayingBarPortrait
+import praeterii.radio.compose.station.NowPlayingBarLandscape
 import praeterii.radio.compose.station.StationItem
 import praeterii.radio.domain.model.RadioModel
 import praeterii.radio.theme.RadioTheme
@@ -110,7 +111,7 @@ internal fun RadioScreen(
                 enter = expandVertically() + fadeIn(),
                 exit = shrinkVertically() + fadeOut()
             ) {
-                NowPlayingBar(
+                NowPlayingBarPortrait(
                     title = title,
                     artworkUri = artworkUri,
                     isPlaying = isPlaying,
@@ -214,7 +215,7 @@ private fun RadioContent(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier.fillMaxSize()
                         ) {
-                            NowPlayingBar(
+                            NowPlayingBarLandscape(
                                 title = title,
                                 artworkUri = artworkUri,
                                 isPlaying = isPlaying,

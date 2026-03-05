@@ -1,6 +1,5 @@
 package praeterii.radio.compose.station
 
-import android.content.res.Configuration
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -19,13 +18,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Devices.TABLET
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
@@ -35,37 +34,7 @@ import praeterii.radio.R
 import praeterii.radio.theme.RadioTheme
 
 @Composable
-internal fun NowPlayingBar(
-    title: String,
-    artworkUri: String?,
-    isPlaying: Boolean,
-    onTogglePlayPause: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val configuration = LocalConfiguration.current
-    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-
-    if (isLandscape) {
-        NowPlayingLandscape(
-            title = title,
-            artworkUri = artworkUri,
-            isPlaying = isPlaying,
-            onTogglePlayPause = onTogglePlayPause,
-            modifier = modifier
-        )
-    } else {
-        NowPlayingPortrait(
-            title = title,
-            artworkUri = artworkUri,
-            isPlaying = isPlaying,
-            onTogglePlayPause = onTogglePlayPause,
-            modifier = modifier
-        )
-    }
-}
-
-@Composable
-private fun NowPlayingPortrait(
+internal fun NowPlayingBarPortrait(
     title: String,
     artworkUri: String?,
     isPlaying: Boolean,
@@ -75,11 +44,11 @@ private fun NowPlayingPortrait(
     Surface(
         tonalElevation = 8.dp,
         shadowElevation = 8.dp,
-        modifier = modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth()
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
+            modifier = modifier
                 .padding(8.dp)
                 .fillMaxWidth()
         ) {
@@ -108,7 +77,7 @@ private fun NowPlayingPortrait(
 }
 
 @Composable
-private fun NowPlayingLandscape(
+internal fun NowPlayingBarLandscape(
     title: String,
     artworkUri: String?,
     isPlaying: Boolean,
@@ -152,10 +121,10 @@ private fun NowPlayingLandscape(
 @Composable
 private fun StationFavicon(
     artworkUri: String?,
-    size: androidx.compose.ui.unit.Dp,
+    size: Dp,
     clipShape: androidx.compose.ui.graphics.Shape,
     modifier: Modifier = Modifier,
-    padding: androidx.compose.ui.unit.Dp = 8.dp
+    padding: Dp = 8.dp
 ) {
     val placeholderTint = if (isSystemInDarkTheme()) {
         MaterialTheme.colorScheme.onSurface
@@ -194,7 +163,7 @@ private fun PlayPauseButton(
     isPlaying: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    iconSize: androidx.compose.ui.unit.Dp = 24.dp
+    iconSize: Dp = 24.dp
 ) {
     IconButton(
         onClick = onClick,
@@ -212,12 +181,24 @@ private fun PlayPauseButton(
 
 @Preview
 @Preview(uiMode = UI_MODE_NIGHT_YES)
-@Preview(device = TABLET, showBackground = true)
-@Preview(device = TABLET, uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun NowPlayingBarPreview() {
     RadioTheme {
-        NowPlayingBar(
+        NowPlayingBarPortrait(
+            title = "RMF FM",
+            artworkUri = null,
+            isPlaying = true,
+            onTogglePlayPause = {}
+        )
+    }
+}
+
+@Preview(device = TABLET, showBackground = true)
+@Preview(device = TABLET, uiMode = UI_MODE_NIGHT_YES)
+@Composable
+private fun NowPlayingBarLandscapePreview() {
+    RadioTheme {
+        NowPlayingBarLandscape(
             title = "RMF FM",
             artworkUri = null,
             isPlaying = true,
