@@ -46,6 +46,7 @@ class RadioStationsRepository(private val userAgent: String = "praeterii.radio")
 
     fun getStationsByCountry(
         countryCode: String,
+        query: String = "",
         offset: Int = 0,
         limit: Int = 1000,
         onSuccess: (List<RadioModel>) -> Unit,
@@ -54,6 +55,7 @@ class RadioStationsRepository(private val userAgent: String = "praeterii.radio")
         try {
             radioBrowserService.getStations(
                 userAgent = userAgent,
+                name = query,
                 countrycode = countryCode,
                 offset = offset,
                 limit = limit,

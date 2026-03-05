@@ -5,4 +5,5 @@
     <string name="failed_load_stations">Failed to load stations</string>
     <string name="failed_load_data">Failed to load data</string>
     <string name="retry">Try Again</string>
+    <string name="search_placeholder">Search stations</string>
 </resources>

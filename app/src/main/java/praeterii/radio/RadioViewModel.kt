@@ -9,12 +9,9 @@ import androidx.annotation.Keep
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
-import androidx.media3.common.MimeTypes
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
@@ -23,6 +20,8 @@ import praeterii.radio.repository.RadioStationsRepository
 import praeterii.radio.data.RadioStationOrder
 import praeterii.radio.data.RadioCountry
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import praeterii.radio.domain.model.RadioModel
 import praeterii.radio.playback.PlaybackService
@@ -59,6 +58,11 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
     var isNowPlayingBarVisible by mutableStateOf(false)
         private set
 
+    var searchQuery by mutableStateOf("")
+        private set
+
+    private var searchJob: Job? = null
+
     private val playerListener = object : Player.Listener {
         override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
             currentMediaItem = mediaItem
@@ -82,11 +86,12 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         }, application.mainExecutor)
     }
 
-    fun loadStations() {
+    fun loadStations(query: String = searchQuery) {
         errorMessage = null
         isLoading = true
         api.getStationsByCountry(
             countryCode = currentCountryCode,
+            query = query,
             limit = 1000,
             onSuccess = { result ->
                 viewModelScope.launch(Dispatchers.Main) {
@@ -101,6 +106,15 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
         )
+    }
+
+    fun onSearchQueryChange(query: String) {
+        searchQuery = query
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
+            delay(333)
+            loadStations(query)
+        }
     }
 
     fun loadCountries() {
@@ -126,29 +140,14 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
     fun selectCountry(country: RadioCountry) {
         localeRepository.setOverrideCountryCode(country.iso_3166_1)
         currentCountryCode = country.iso_3166_1
+        searchQuery = ""
         loadStations()
     }
 
     fun playStation(station: RadioModel) {
-        val mediaItem = MediaItem.Builder()
-            .setMediaId(station.stationuuid)
-            .setUri(station.url)
-            .setMediaMetadata(
-                MediaMetadata.Builder()
-                    .setArtist(station.name)
-                    .setArtworkUri(station.favicon.toUri())
-                    .build()
-            )
-            .apply {
-                if (station.url.contains(".m3u8")) {
-                    setMimeType(MimeTypes.APPLICATION_M3U8)
-                }
-            }
-            .build()
-
         isNowPlayingBarVisible = true
         controller?.let { controller ->
-            controller.setMediaItem(mediaItem)
+            controller.setMediaItem(station.toMediaItem())
             controller.prepare()
             controller.play()
         }
