@@ -4,11 +4,15 @@ import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import praeterii.radio.domain.model.RadioModel
 import praeterii.radio.repository.RadioStationsRepository
 
-class SearchStationsUseCase(private val repository: RadioStationsRepository) {
+class SearchStationsUseCase(
+    private val repository: RadioStationsRepository,
+    private val favoriteStationIds: StateFlow<Set<String>>,
+) {
     operator fun invoke(
         countryCode: String,
         query: String = "",
@@ -29,6 +33,8 @@ class SearchStationsUseCase(private val repository: RadioStationsRepository) {
                         favicon = stationModel.favicon,
                         tags = stationModel.tags.replace(",", " "),
                     )
+                }.sortedByDescending { radioModel ->
+                    favoriteStationIds.value.contains(radioModel.stationuuid)
                 }.let(onSuccess)
         } catch (e: Exception) {
             ensureActive()

@@ -47,14 +47,17 @@ internal fun CountryPickerSheet(
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    item {
+                    item(key = "country_picker_title") {
                         Text(
                             text = stringResource(R.string.country_picker_title),
                             style = MaterialTheme.typography.titleLarge,
                             modifier = Modifier.padding(16.dp)
                         )
                     }
-                    items(countries) { country ->
+                    items(
+                        items = countries,
+                        key = { it.iso_3166_1.ifEmpty { it.name } }
+                    ) { country ->
                         CountryItem(
                             country = country,
                             onClick = { onCountrySelect(country) }

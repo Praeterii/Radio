@@ -106,21 +106,17 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
     fun loadStations(query: String = searchQuery) {
         errorMessage = null
         isLoading = true
-        SearchStationsUseCase(repository = api)(
+        SearchStationsUseCase(repository = api, favoriteStationIds = favoriteStationIds)(
             countryCode = currentCountryCode,
             query = query,
             limit = 1000,
             onSuccess = { result ->
-                viewModelScope.launch(Dispatchers.Main) {
-                    stations = result.sortedByDescending { favoriteStationIds.value.contains(it.stationuuid) }
-                    isLoading = false
-                }
+                stations = result
+                isLoading = false
             },
             onFail = { error ->
-                viewModelScope.launch(Dispatchers.Main) {
-                    errorMessage = error ?: "Failed to load stations"
-                    isLoading = false
-                }
+                errorMessage = error ?: "Failed to load stations"
+                isLoading = false
             }
         )
     }
