@@ -123,6 +123,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun onSearchQueryChange(query: String) {
+        if (query == searchQuery) return
         searchQuery = query
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
