@@ -8,6 +8,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import praeterii.radio.compose.screen.RadioScreen
 import praeterii.radio.theme.RadioTheme
@@ -32,8 +34,11 @@ private fun RadioApp(viewModel: RadioViewModel = viewModel()) {
     LaunchedEffect(Unit) {
         viewModel.loadStations()
     }
+    val favoriteStationIds by viewModel.favoriteStationIds.collectAsState()
+
     RadioScreen(
         stations = viewModel.stations,
+        favoriteStationIds = favoriteStationIds,
         countries = viewModel.countries,
         isCountriesLoading = viewModel.isCountriesLoading,
         currentCountryCode = viewModel.currentCountryCode,
@@ -46,6 +51,7 @@ private fun RadioApp(viewModel: RadioViewModel = viewModel()) {
         showPlayerBar = viewModel.isNowPlayingBarVisible,
         errorMessage = viewModel.errorMessage,
         onStationClick = { viewModel.playStation(it) },
+        onToggleFavorite = { viewModel.toggleFavorite(it) },
         onOpenCountryPicker = { viewModel.loadCountries() },
         onCountrySelect = { viewModel.selectCountry(it) },
         onTogglePlayPause = { viewModel.togglePlayPause() },

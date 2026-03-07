@@ -9,12 +9,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -31,6 +33,8 @@ import praeterii.radio.theme.RadioTheme
 @Composable
 internal fun StationItem(
     station: RadioModel,
+    isFavorite: Boolean,
+    onFavoriteToggle: () -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -90,6 +94,14 @@ internal fun StationItem(
                 )
             }
         }
+
+        IconButton(onClick = onFavoriteToggle) {
+            Icon(
+                painter = if (isFavorite) painterResource(R.drawable.favorite_filled_24px) else painterResource(R.drawable.favorite_24px),
+                contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
+                tint = if (isFavorite) Color.Red else MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 
@@ -99,16 +111,32 @@ internal fun StationItem(
 private fun StationItemPreview() {
     RadioTheme {
         Surface {
-            StationItem(
-                station = RadioModel(
-                    stationuuid = "uuid1",
-                    name = "RMF FM",
-                    url = "https://example.com/1",
-                    favicon = "https://example.com/favicon.ico",
-                    tags = "pop, rock, news, hits"
-                ),
-                onClick = {}
-            )
+            Column {
+                StationItem(
+                    station = RadioModel(
+                        stationuuid = "uuid1",
+                        name = "The best internet radio in our universe",
+                        url = "",
+                        favicon = "",
+                        tags = "pop, rock, news, hits"
+                    ),
+                    isFavorite = true,
+                    onFavoriteToggle = {},
+                    onClick = {}
+                )
+                StationItem(
+                    station = RadioModel(
+                        stationuuid = "uuid1",
+                        name = "Internet Radio",
+                        url = "",
+                        favicon = "",
+                        tags = "",
+                    ),
+                    isFavorite = false,
+                    onFavoriteToggle = {},
+                    onClick = {}
+                )
+            }
         }
     }
 }

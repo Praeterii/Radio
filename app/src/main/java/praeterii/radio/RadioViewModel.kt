@@ -22,9 +22,15 @@ import praeterii.radio.data.RadioCountry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import praeterii.radio.data.local.RadioDatabase
 import praeterii.radio.domain.model.RadioModel
 import praeterii.radio.playback.PlaybackService
+import praeterii.radio.repository.FavoritesRepository
 import praeterii.radio.repository.LocaleRepository
 
 @Keep
@@ -32,6 +38,10 @@ import praeterii.radio.repository.LocaleRepository
 class RadioViewModel(application: Application) : AndroidViewModel(application) {
     private val api by lazy { RadioStationsRepository() }
     private val localeRepository by lazy { LocaleRepository(application) }
+    private val favoritesRepository by lazy {
+        FavoritesRepository(RadioDatabase.getDatabase(application).favoriteDao())
+    }
+    
     private var controllerFuture: ListenableFuture<MediaController>? = null
     private val controller: MediaController?
         get() = if (controllerFuture?.isDone == true) controllerFuture?.get() else null
@@ -60,6 +70,10 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
 
     var searchQuery by mutableStateOf("")
         private set
+
+    val favoriteStationIds: StateFlow<Set<String>> = favoritesRepository.allFavorites
+        .map { favorites -> favorites.map { it.stationuuid }.toSet() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
 
     private var searchJob: Job? = null
 
@@ -95,7 +109,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
             limit = 1000,
             onSuccess = { result ->
                 viewModelScope.launch(Dispatchers.Main) {
-                    stations = result
+                    stations = result.sortedByDescending { favoriteStationIds.value.contains(it.stationuuid) }
                     isLoading = false
                 }
             },
@@ -161,6 +175,23 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
                 Log.e("RadioViewModel", "Failed to register station click: $error")
             }
         )
+    }
+
+    fun toggleFavorite(station: RadioModel) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val isFav = favoriteStationIds.value.contains(station.stationuuid)
+            if (isFav) {
+                favoritesRepository.delete(station)
+            } else {
+                favoritesRepository.insert(station)
+            }
+            // Re-sort the current list to keep favorites at the top
+            viewModelScope.launch(Dispatchers.Main) {
+                stations = stations.sortedByDescending { 
+                    if (it.stationuuid == station.stationuuid) !isFav else favoriteStationIds.value.contains(it.stationuuid)
+                }
+            }
+        }
     }
 
     fun togglePlayPause() {
