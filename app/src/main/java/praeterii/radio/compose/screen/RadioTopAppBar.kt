@@ -1,18 +1,14 @@
 package praeterii.radio.compose.screen
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkHorizontally
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -51,102 +47,93 @@ internal fun RadioTopAppBar(
     onShowCountryPicker: () -> Unit,
     focusRequester: FocusRequester
 ) {
-    TopAppBar(
-        title = {
-            AnimatedContent(
-                targetState = isSearchVisible,
-                transitionSpec = {
-                    if (targetState) {
-                        (slideInHorizontally { width -> width } + fadeIn()).togetherWith(
-                            slideOutHorizontally { width -> -width } + fadeOut())
-                    } else {
-                        (slideInHorizontally { width -> -width } + fadeIn()).togetherWith(
-                            slideOutHorizontally { width -> width } + fadeOut())
-                    }.using(
-                        SizeTransform(clip = false)
+    Column {
+        TopAppBar(
+            title = {
+                Text(stringResource(R.string.app_name))
+            },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            ),
+            actions = {
+                IconButton(onClick = { onSearchToggle(!isSearchVisible) }) {
+                    Icon(
+                        painter = painterResource(R.drawable.search_24px),
+                        contentDescription = "Search"
                     )
-                }, label = "search_animation"
-            ) { targetIsSearchVisible ->
-                if (targetIsSearchVisible) {
-                    SearchBar(
-                        inputField = {
-                            SearchBarDefaults.InputField(
-                                query = searchQuery,
-                                onQueryChange = onSearchQueryChange,
-                                onSearch = { },
-                                expanded = false,
-                                onExpandedChange = {},
-                                placeholder = { Text(stringResource(R.string.search_placeholder)) },
-                                leadingIcon = {
-                                    IconButton(onClick = {
-                                        onSearchToggle(false)
-                                        onSearchQueryChange("")
-                                    }) {
+                }
+
+                val flagResId = FlagKit.getResId(currentCountryCode)
+                if (flagResId != 0) {
+                    IconButton(onClick = {
+                        onOpenCountryPicker()
+                        onShowCountryPicker()
+                    }) {
+                        Image(
+                            painter = painterResource(flagResId),
+                            contentDescription = "Select Country",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+            }
+        )
+
+        AnimatedVisibility(
+            visible = isSearchVisible,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut()
+        ) {
+            Surface(
+                color = MaterialTheme.colorScheme.primaryContainer,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                SearchBar(
+                    inputField = {
+                        SearchBarDefaults.InputField(
+                            query = searchQuery,
+                            onQueryChange = onSearchQueryChange,
+                            onSearch = { },
+                            expanded = false,
+                            onExpandedChange = {},
+                            placeholder = { Text(stringResource(R.string.search_placeholder)) },
+                            leadingIcon = {
+                                IconButton(onClick = {
+                                    onSearchToggle(false)
+                                    onSearchQueryChange("")
+                                }) {
+                                    Icon(
+                                        painterResource(R.drawable.arrow_back_24px),
+                                        contentDescription = null
+                                    )
+                                }
+                            },
+                            trailingIcon = {
+                                if (searchQuery.isNotEmpty()) {
+                                    IconButton(onClick = { onSearchQueryChange("") }) {
                                         Icon(
-                                            painterResource(R.drawable.arrow_back_24px),
+                                            painterResource(R.drawable.close_24px),
                                             contentDescription = null
                                         )
                                     }
-                                },
-                                trailingIcon = {
-                                    if (searchQuery.isNotEmpty()) {
-                                        IconButton(onClick = { onSearchQueryChange("") }) {
-                                            Icon(
-                                                painterResource(R.drawable.close_24px),
-                                                contentDescription = null
-                                            )
-                                        }
-                                    }
                                 }
-                            )
-                        },
-                        expanded = false,
-                        onExpandedChange = {},
-                        modifier = Modifier
-                            .focusRequester(focusRequester)
-                            .fillMaxWidth()
-                            .padding(end = 8.dp)
-                    ) {}
-                } else {
-                    Text(stringResource(R.string.app_name))
-                }
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-        ),
-        actions = {
-            AnimatedVisibility(
-                visible = !isSearchVisible,
-                enter = fadeIn() + expandHorizontally(),
-                exit = fadeOut() + shrinkHorizontally()
-            ) {
-                Row {
-                    IconButton(onClick = { onSearchToggle(true) }) {
-                        Icon(
-                            painter = painterResource(R.drawable.search_24px),
-                            contentDescription = "Search"
+                            }
                         )
-                    }
-
-                    val flagResId = FlagKit.getResId(currentCountryCode)
-                    if (flagResId != 0) {
-                        IconButton(onClick = {
-                            onOpenCountryPicker()
-                            onShowCountryPicker()
-                        }) {
-                            Image(
-                                painter = painterResource(flagResId),
-                                contentDescription = "Select Country",
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                    }
-                }
+                    },
+                    expanded = false,
+                    onExpandedChange = {},
+                    // Disable default window insets to prevent double padding on real devices
+                    windowInsets = WindowInsets(0, 0, 0, 0),
+                    modifier = Modifier
+                        .focusRequester(focusRequester)
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 8.dp)
+                ) {}
             }
         }
-    )
+    }
 }
 
 @Preview
@@ -160,7 +147,7 @@ private fun RadioTopAppBarPreview() {
                 onSearchToggle = {},
                 searchQuery = "",
                 onSearchQueryChange = {},
-                currentCountryCode = "PL",
+                currentCountryCode = "GB",
                 onOpenCountryPicker = {},
                 onShowCountryPicker = {},
                 focusRequester = remember { FocusRequester() }
