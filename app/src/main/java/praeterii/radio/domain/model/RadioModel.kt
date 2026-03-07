@@ -16,7 +16,7 @@ data class RadioModel(
     val favicon: String,
     val tags: String = ""
 ) {
-    fun toMediaItem() = MediaItem.Builder()
+    fun toMediaItem() : MediaItem = MediaItem.Builder()
         .setMediaId(stationuuid)
         .setUri(url)
         .setMediaMetadata(

@@ -60,7 +60,7 @@ internal fun StationItem(
             val state = painter.state
             if (state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error) {
                 Icon(
-                    painter = painterResource(id = R.drawable.image_24px),
+                    painter = painterResource(id = R.drawable.radio_filled_24px),
                     contentDescription = null,
                     tint = placeholderTint,
                     modifier = Modifier.size(48.dp)
