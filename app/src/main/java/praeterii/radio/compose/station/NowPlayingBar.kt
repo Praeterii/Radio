@@ -145,7 +145,7 @@ private fun StationFavicon(
         val state = painter.state
         if (state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error) {
             Icon(
-                painter = painterResource(R.drawable.image_24px),
+                painter = painterResource(R.drawable.radio_filled_24px),
                 contentDescription = null,
                 tint = placeholderTint,
                 modifier = Modifier

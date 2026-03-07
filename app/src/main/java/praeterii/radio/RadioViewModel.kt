@@ -29,6 +29,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import praeterii.radio.data.local.RadioDatabase
 import praeterii.radio.domain.model.RadioModel
+import praeterii.radio.domain.usecase.GetCountriesUseCase
+import praeterii.radio.domain.usecase.RegisterStationClickUseCase
+import praeterii.radio.domain.usecase.SearchStationsUseCase
 import praeterii.radio.playback.PlaybackService
 import praeterii.radio.repository.FavoritesRepository
 import praeterii.radio.repository.LocaleRepository
@@ -103,7 +106,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
     fun loadStations(query: String = searchQuery) {
         errorMessage = null
         isLoading = true
-        api.getStationsByCountry(
+        SearchStationsUseCase(repository = api)(
             countryCode = currentCountryCode,
             query = query,
             limit = 1000,
@@ -136,18 +139,14 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         if (countries.isNotEmpty() || isCountriesLoading) return
         
         isCountriesLoading = true
-        api.getCountries(
+        GetCountriesUseCase(repository = api, localeRepository = localeRepository)(
             order = RadioStationOrder.NAME,
             onSuccess = { result ->
-                viewModelScope.launch(Dispatchers.Main) {
-                    countries = result.sortedBy { it.name }
-                    isCountriesLoading = false
-                }
+                countries = result
+                isCountriesLoading = false
             },
             onFail = {
-                viewModelScope.launch(Dispatchers.Main) {
-                    isCountriesLoading = false
-                }
+                isCountriesLoading = false
             }
         )
     }
@@ -167,7 +166,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
             controller.play()
         }
 
-        api.stationClick(
+        RegisterStationClickUseCase(repository = api)(
             stationUuid = station.stationuuid,
             onSuccess = { result ->
                 Log.d("RadioViewModel", "Station click registered: ${result.ok}")

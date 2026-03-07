@@ -9,11 +9,15 @@ class LocaleRepository(context: Context) {
 
     fun getCurrentCountryCode(): String {
         val savedCountry = prefs.getString(COUNTRY_CODE, null)
-        return savedCountry ?: Locale.getDefault().country.ifBlank { "US" }
+        return savedCountry ?: getDefaultCountryCode()
     }
 
     fun setOverrideCountryCode(countryCode: String?) {
         prefs.edit { putString(COUNTRY_CODE, countryCode) }
+    }
+
+    fun getDefaultCountryCode(): String {
+        return Locale.getDefault().country.ifBlank { "US" }
     }
 
     private companion object {

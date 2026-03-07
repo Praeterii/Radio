@@ -1,99 +1,85 @@
 package praeterii.radio.repository
 
-import android.util.Log
-import praeterii.radio.data.RadioStationClickResult
-import praeterii.radio.data.RadioCountry
-import praeterii.radio.data.RadioStationOrder
-import praeterii.radio.services.RadioStationApiService
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
-import praeterii.radio.domain.model.RadioModel
+import praeterii.radio.data.RadioCountry
+import praeterii.radio.data.RadioStation
+import praeterii.radio.data.RadioStationClickResult
+import praeterii.radio.data.RadioStationOrder
+import praeterii.radio.services.RadioStationApiService
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
+import java.net.InetAddress
 
 class RadioStationsRepository(private val userAgent: String = "praeterii.radio") {
-    private val radioBrowserService: RadioStationApiService by lazy {
-        val json = Json {
-            ignoreUnknownKeys = true
-            coerceInputValues = true
+    private lateinit var radioBrowserService: RadioStationApiService
+    private val initializationMutex = Mutex()
+
+    private suspend fun initialize() {
+        if (::radioBrowserService.isInitialized) return
+
+        initializationMutex.withLock {
+            // Double-check to prevent re-initialization after acquiring lock
+            if (::radioBrowserService.isInitialized) return
+
+            val json = Json {
+                ignoreUnknownKeys = true
+                coerceInputValues = true
+            }
+            val serverEndpoint = getRadioBrowserServer()
+            radioBrowserService = Retrofit.Builder()
+                .baseUrl("https://$serverEndpoint")
+                .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+                .build()
+                .create(RadioStationApiService::class.java)
         }
-        Retrofit.Builder()
-            .baseUrl("https://all.api.radio-browser.info")
-            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-            .build()
-            .create(RadioStationApiService::class.java)
     }
 
-    fun getCountries(
+    private suspend fun getRadioBrowserServer(): String = withContext(Dispatchers.IO) {
+        val servers = InetAddress.getAllByName("all.api.radio-browser.info")
+        if (servers.isEmpty()) {
+            return@withContext "de1.api.radio-browser.info"
+        }
+        return@withContext servers.first().canonicalHostName
+    }
+
+    suspend fun getCountries(
         order: RadioStationOrder = RadioStationOrder.NAME,
-        onSuccess: (List<RadioCountry>) -> Unit,
-        onFail: (String?) -> Unit
-    ) = CoroutineScope(Dispatchers.IO).launch {
-        try {
-            radioBrowserService.getCountries(
-                userAgent = userAgent,
-                order = order.value
-            ).let(onSuccess)
-        } catch (e: Exception) {
-            ensureActive()
-            handleApiException(e, onFail)
-        }
+    ): List<RadioCountry> {
+        initialize()
+        return radioBrowserService.getCountries(
+            userAgent = userAgent,
+            order = order.value
+        )
     }
 
-    fun getStationsByCountry(
+    suspend fun searchStationsByCountry(
         countryCode: String,
         query: String = "",
         offset: Int = 0,
         limit: Int = 1000,
-        onSuccess: (List<RadioModel>) -> Unit,
-        onFail: (String?) -> Unit
-    ) = CoroutineScope(Dispatchers.IO).launch {
-        try {
-            radioBrowserService.getStations(
-                userAgent = userAgent,
-                name = query,
-                countrycode = countryCode,
-                offset = offset,
-                limit = limit,
-            ).distinctBy { stationModel ->
-                stationModel.url_resolved
-            }.map { stationModel ->
-                RadioModel(
-                    stationuuid = stationModel.stationuuid,
-                    name = stationModel.name,
-                    url = stationModel.url_resolved,
-                    favicon = stationModel.favicon,
-                    tags = stationModel.tags.replace(",", " "),
-                )
-            }.let(onSuccess)
-        } catch (e: Exception) {
-            ensureActive()
-            handleApiException(e, onFail)
-        }
+    ): List<RadioStation> {
+        initialize()
+        return radioBrowserService.getStations(
+            userAgent = userAgent,
+            name = query,
+            countrycode = countryCode,
+            offset = offset,
+            limit = limit,
+        )
     }
 
-    fun stationClick(
+    suspend fun stationClick(
         stationUuid: String,
-        onSuccess: (RadioStationClickResult) -> Unit,
-        onFail: (String?) -> Unit
-    ) = CoroutineScope(Dispatchers.IO).launch {
-        try {
-            radioBrowserService.stationClick(
-                userAgent = userAgent,
-                stationUuid = stationUuid
-            ).let(onSuccess)
-        } catch (e: Exception) {
-            ensureActive()
-            handleApiException(e, onFail)
-        }
-    }
-
-    private fun handleApiException(exception: Exception, onFail: (String?) -> Unit) {
-        Log.e(RadioStationsRepository::class.java.name, exception.message ?: "Unknown error")
-        onFail.invoke(exception.message)
+    ): RadioStationClickResult {
+        initialize()
+        return radioBrowserService.stationClick(
+            userAgent = userAgent,
+            stationUuid = stationUuid
+        )
     }
 }
