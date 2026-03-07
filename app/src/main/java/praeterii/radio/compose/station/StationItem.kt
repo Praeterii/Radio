@@ -9,14 +9,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -27,6 +25,7 @@ import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
 import coil.request.ImageRequest
 import praeterii.radio.R
+import praeterii.radio.compose.commons.FavoriteButton
 import praeterii.radio.domain.model.RadioModel
 import praeterii.radio.theme.RadioTheme
 
@@ -95,13 +94,10 @@ internal fun StationItem(
             }
         }
 
-        IconButton(onClick = onFavoriteToggle) {
-            Icon(
-                painter = if (isFavorite) painterResource(R.drawable.favorite_filled_24px) else painterResource(R.drawable.favorite_24px),
-                contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
-                tint = if (isFavorite) Color.Red else MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+        FavoriteButton(
+            isFavorite = isFavorite,
+            onClick = onFavoriteToggle
+        )
     }
 }
 

@@ -31,6 +31,7 @@ import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
 import coil.request.ImageRequest
 import praeterii.radio.R
+import praeterii.radio.compose.commons.FavoriteButton
 import praeterii.radio.theme.RadioTheme
 
 @Composable
@@ -38,6 +39,8 @@ internal fun NowPlayingBarPortrait(
     title: String,
     artworkUri: String?,
     isPlaying: Boolean,
+    isFavorite: Boolean,
+    onToggleFavorite: () -> Unit,
     onTogglePlayPause: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -68,6 +71,11 @@ internal fun NowPlayingBarPortrait(
                     .padding(horizontal = 12.dp)
             )
 
+            FavoriteButton(
+                isFavorite = isFavorite,
+                onClick = onToggleFavorite
+            )
+
             PlayPauseButton(
                 isPlaying = isPlaying,
                 onClick = onTogglePlayPause
@@ -81,6 +89,8 @@ internal fun NowPlayingBarLandscape(
     title: String,
     artworkUri: String?,
     isPlaying: Boolean,
+    isFavorite: Boolean,
+    onToggleFavorite: () -> Unit,
     onTogglePlayPause: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -107,14 +117,25 @@ internal fun NowPlayingBarLandscape(
             modifier = Modifier.padding(top = 16.dp)
         )
 
-        PlayPauseButton(
-            isPlaying = isPlaying,
-            onClick = onTogglePlayPause,
-            modifier = Modifier
-                .padding(top = 16.dp)
-                .size(64.dp),
-            iconSize = 48.dp
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(top = 16.dp)
+        ) {
+            FavoriteButton(
+                isFavorite = isFavorite,
+                onClick = onToggleFavorite,
+                modifier = Modifier.size(48.dp),
+                iconSize = 32.dp
+            )
+
+            PlayPauseButton(
+                isPlaying = isPlaying,
+                onClick = onTogglePlayPause,
+                modifier = Modifier.size(64.dp),
+                iconSize = 48.dp
+            )
+        }
     }
 }
 
@@ -188,6 +209,8 @@ private fun NowPlayingBarPreview() {
             title = "RMF FM",
             artworkUri = null,
             isPlaying = true,
+            isFavorite = true,
+            onToggleFavorite = {},
             onTogglePlayPause = {}
         )
     }
@@ -202,6 +225,8 @@ private fun NowPlayingBarLandscapePreview() {
             title = "RMF FM",
             artworkUri = null,
             isPlaying = true,
+            isFavorite = false,
+            onToggleFavorite = {},
             onTogglePlayPause = {}
         )
     }

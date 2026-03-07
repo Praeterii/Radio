@@ -78,6 +78,9 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         .map { favorites -> favorites.map { it.stationuuid }.toSet() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
 
+    val currentlyPlayingId: String?
+        get() = currentMediaItem?.mediaId
+
     private var searchJob: Job? = null
 
     private val playerListener = object : Player.Listener {

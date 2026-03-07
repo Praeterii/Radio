@@ -57,6 +57,7 @@ internal fun RadioScreen(
     countries: List<RadioCountry>,
     isCountriesLoading: Boolean,
     currentCountryCode: String,
+    currentlyPlayingId: String?,
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
     title: String,
@@ -106,6 +107,10 @@ internal fun RadioScreen(
                     title = title,
                     artworkUri = artworkUri,
                     isPlaying = isPlaying,
+                    isFavorite = favoriteStationIds.contains(currentlyPlayingId),
+                    onToggleFavorite = {
+                        stations.find { it.stationuuid == currentlyPlayingId }?.let { onToggleFavorite(it) }
+                    },
                     onTogglePlayPause = onTogglePlayPause,
                     modifier = Modifier.padding(paddingValues = WindowInsets.navigationBars.asPaddingValues())
                 )
@@ -117,6 +122,7 @@ internal fun RadioScreen(
             favoriteStationIds = favoriteStationIds,
             title = title,
             artworkUri = artworkUri,
+            currentlyPlayingId = currentlyPlayingId,
             showPlayerBar = showPlayerBar,
             isPlaying = isPlaying,
             isLoading = isLoading,
@@ -155,6 +161,7 @@ private fun RadioContent(
     favoriteStationIds: Set<String>,
     title: String,
     artworkUri: String?,
+    currentlyPlayingId: String?,
     showPlayerBar: Boolean,
     isPlaying: Boolean,
     isLoading: Boolean,
@@ -227,6 +234,10 @@ private fun RadioContent(
                                     title = title,
                                     artworkUri = artworkUri,
                                     isPlaying = isPlaying,
+                                    isFavorite = favoriteStationIds.contains(currentlyPlayingId),
+                                    onToggleFavorite = {
+                                        stations.find { it.stationuuid == currentlyPlayingId }?.let { onToggleFavorite(it) }
+                                    },
                                     onTogglePlayPause = onTogglePlayPause
                                 )
                             }
@@ -253,6 +264,7 @@ private fun RadioScreenPreview(
                 countries = emptyList(),
                 isCountriesLoading = false,
                 currentCountryCode = state.currentCountryCode,
+                currentlyPlayingId = null,
                 searchQuery = "",
                 onSearchQueryChange = {},
                 title = state.currentlyPlayingStation?.name ?: "Unknown station",

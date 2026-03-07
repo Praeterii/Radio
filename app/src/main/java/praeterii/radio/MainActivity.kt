@@ -55,6 +55,7 @@ private fun RadioApp(viewModel: RadioViewModel = viewModel()) {
         onOpenCountryPicker = { viewModel.loadCountries() },
         onCountrySelect = { viewModel.selectCountry(it) },
         onTogglePlayPause = { viewModel.togglePlayPause() },
+        currentlyPlayingId = viewModel.currentlyPlayingId,
         onRetry = { viewModel.loadStations() }
     )
 }
