@@ -2,6 +2,7 @@ package praeterii.radio.compose.screen
 
 import android.content.res.Configuration
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
@@ -90,6 +91,11 @@ internal fun RadioScreen(
     var showCountryPicker by remember { mutableStateOf(false) }
     var isSearchVisible by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
+
+    BackHandler(enabled = isSearchVisible) {
+        isSearchVisible = false
+        onSearchQueryChange("")
+    }
 
     Scaffold(
         topBar = {
