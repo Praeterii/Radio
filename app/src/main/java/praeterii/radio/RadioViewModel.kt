@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-
 package praeterii.radio
 
 import android.app.Application
@@ -31,7 +29,6 @@ import praeterii.radio.repository.FavoritesRepository
 import praeterii.radio.repository.LocaleRepository
 
 @Keep
-@Suppress("Unused")
 class RadioViewModel(application: Application) : AndroidViewModel(application) {
     private val api by lazy { RadioStationsRepository() }
     private val localeRepository by lazy { LocaleRepository(application) }
