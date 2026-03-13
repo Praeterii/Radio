@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import praeterii.radio.R
@@ -51,7 +52,11 @@ internal fun FavoriteButton(
         Icon(
             painter = if (isFavorite) painterResource(R.drawable.favorite_filled_24px) 
                       else painterResource(R.drawable.favorite_24px),
-            contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
+            contentDescription = if (isFavorite) {
+                stringResource(R.string.remove_from_favorites)
+            } else {
+                stringResource(R.string.add_to_favorites)
+            },
             tint = tint,
             modifier = Modifier
                 .size(iconSize)
