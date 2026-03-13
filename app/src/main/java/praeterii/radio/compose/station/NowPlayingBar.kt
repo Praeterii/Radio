@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -118,7 +119,9 @@ internal fun NowPlayingBarLandscape(
             textAlign = TextAlign.Center,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(top = 16.dp)
+            modifier = Modifier
+                .widthIn(max = 240.dp)
+                .padding(top = 16.dp)
         )
 
         Row(
@@ -230,14 +233,24 @@ private fun PlayPauseButton(
 @Composable
 private fun NowPlayingBarPreview() {
     RadioTheme {
-        NowPlayingBarPortrait(
-            title = "RMF FM",
-            artworkUri = null,
-            isPlaying = true,
-            isFavorite = true,
-            onToggleFavorite = {},
-            onTogglePlayPause = {}
-        )
+        Column {
+            NowPlayingBarPortrait(
+                title = "RMF FM",
+                artworkUri = null,
+                isPlaying = false,
+                isFavorite = false,
+                onToggleFavorite = {},
+                onTogglePlayPause = {}
+            )
+            NowPlayingBarPortrait(
+                title = "Internet radio with a very long name",
+                artworkUri = null,
+                isPlaying = true,
+                isFavorite = true,
+                onToggleFavorite = {},
+                onTogglePlayPause = {}
+            )
+        }
     }
 }
 
@@ -246,13 +259,23 @@ private fun NowPlayingBarPreview() {
 @Composable
 private fun NowPlayingBarLandscapePreview() {
     RadioTheme {
-        NowPlayingBarLandscape(
-            title = "RMF FM",
-            artworkUri = null,
-            isPlaying = true,
-            isFavorite = false,
-            onToggleFavorite = {},
-            onTogglePlayPause = {}
-        )
+        Row {
+            NowPlayingBarLandscape(
+                title = "RMF FM",
+                artworkUri = null,
+                isPlaying = true,
+                isFavorite = true,
+                onToggleFavorite = {},
+                onTogglePlayPause = {}
+            )
+            NowPlayingBarLandscape(
+                title = "Internet radio with a very long name",
+                artworkUri = null,
+                isPlaying = false,
+                isFavorite = false,
+                onToggleFavorite = {},
+                onTogglePlayPause = {}
+            )
+        }
     }
 }
