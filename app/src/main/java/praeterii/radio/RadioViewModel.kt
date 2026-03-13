@@ -3,7 +3,6 @@
 package praeterii.radio
 
 import android.app.Application
-import android.content.ComponentName
 import android.util.Log
 import androidx.annotation.Keep
 import androidx.compose.runtime.getValue
@@ -11,11 +10,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.media3.common.MediaItem
-import androidx.media3.common.Player
-import androidx.media3.session.MediaController
-import androidx.media3.session.SessionToken
-import com.google.common.util.concurrent.ListenableFuture
 import praeterii.radio.repository.RadioStationsRepository
 import praeterii.radio.data.RadioStationOrder
 import praeterii.radio.data.RadioCountry
@@ -32,7 +26,7 @@ import praeterii.radio.domain.model.RadioModel
 import praeterii.radio.domain.usecase.GetCountriesUseCase
 import praeterii.radio.domain.usecase.RegisterStationClickUseCase
 import praeterii.radio.domain.usecase.SearchStationsUseCase
-import praeterii.radio.playback.PlaybackService
+import praeterii.radio.playback.PlaybackManager
 import praeterii.radio.repository.FavoritesRepository
 import praeterii.radio.repository.LocaleRepository
 
@@ -45,9 +39,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         FavoritesRepository(RadioDatabase.getDatabase(application).favoriteDao())
     }
     
-    private var controllerFuture: ListenableFuture<MediaController>? = null
-    private val controller: MediaController?
-        get() = if (controllerFuture?.isDone == true) controllerFuture?.get() else null
+    private val playbackManager = PlaybackManager(application)
 
     var stations by mutableStateOf<List<RadioModel>>(emptyList())
     var currentCountryCode by mutableStateOf(localeRepository.getCurrentCountryCode())
@@ -58,10 +50,8 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
     var isCountriesLoading by mutableStateOf(false)
         private set
 
-    var currentMediaItem by mutableStateOf<MediaItem?>(null)
-        private set
-    var isPlaying by mutableStateOf(false)
-        private set
+    val currentMediaItem get() = playbackManager.currentMediaItem
+    val isPlaying get() = playbackManager.isPlaying
 
     var errorMessage by mutableStateOf<String?>(null)
         private set
@@ -83,33 +73,10 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
 
     private var searchJob: Job? = null
 
-    private val playerListener = object : Player.Listener {
-        override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-            currentMediaItem = mediaItem
-        }
-
-        override fun onIsPlayingChanged(playing: Boolean) {
-            isPlaying = playing
-        }
-    }
-
-    init {
-        val sessionToken =
-            SessionToken(application, ComponentName(application, PlaybackService::class.java))
-        controllerFuture = MediaController.Builder(application, sessionToken).buildAsync()
-        controllerFuture?.addListener({
-            controller?.let {
-                it.addListener(playerListener)
-                currentMediaItem = it.currentMediaItem
-                isPlaying = it.isPlaying
-            }
-        }, application.mainExecutor)
-    }
-
     fun loadStations(query: String = searchQuery) {
         errorMessage = null
         isLoading = true
-        SearchStationsUseCase(repository = api, favoriteStationIds = favoriteStationIds)(
+        SearchStationsUseCase(repository = api)(
             countryCode = currentCountryCode,
             query = query,
             limit = 1000,
@@ -159,11 +126,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
 
     fun playStation(station: RadioModel) {
         isNowPlayingBarVisible = true
-        controller?.let { controller ->
-            controller.setMediaItem(station.toMediaItem())
-            controller.prepare()
-            controller.play()
-        }
+        playbackManager.play(station.toMediaItem())
 
         RegisterStationClickUseCase(repository = api)(
             stationUuid = station.stationuuid,
@@ -194,20 +157,11 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun togglePlayPause() {
-        controller?.let {
-            if (it.isPlaying) {
-                it.pause()
-            } else {
-                it.play()
-            }
-        }
+        playbackManager.togglePlayPause()
     }
 
     override fun onCleared() {
         super.onCleared()
-        controller?.removeListener(playerListener)
-        controllerFuture?.let {
-            MediaController.releaseFuture(it)
-        }
+        playbackManager.release()
     }
 }
