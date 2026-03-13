@@ -30,7 +30,7 @@ import praeterii.radio.repository.LocaleRepository
 
 @Keep
 class RadioViewModel(application: Application) : AndroidViewModel(application) {
-    private val api by lazy { RadioStationsRepository() }
+    private val api by lazy { RadioStationsRepository(application) }
     private val localeRepository by lazy { LocaleRepository(application) }
     private val favoritesRepository by lazy {
         FavoritesRepository(RadioDatabase.getDatabase(application).favoriteDao())
