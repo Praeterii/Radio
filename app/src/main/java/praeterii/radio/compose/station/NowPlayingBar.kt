@@ -45,7 +45,8 @@ internal fun NowPlayingBarPortrait(
     isFavorite: Boolean,
     onToggleFavorite: () -> Unit,
     onTogglePlayPause: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    subtitle: String? = null
 ) {
     Surface(
         tonalElevation = 8.dp,
@@ -65,15 +66,28 @@ internal fun NowPlayingBarPortrait(
                 useLargeIcon = false
             )
 
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
+            Column(
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 12.dp)
-            )
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                if (!subtitle.isNullOrEmpty()) {
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
 
             FavoriteButton(
                 isFavorite = isFavorite,
@@ -96,7 +110,8 @@ internal fun NowPlayingBarLandscape(
     isFavorite: Boolean,
     onToggleFavorite: () -> Unit,
     onTogglePlayPause: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    subtitle: String? = null
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -113,16 +128,32 @@ internal fun NowPlayingBarLandscape(
             useLargeIcon = true
         )
 
-        Text(
-            text = title,
-            style = MaterialTheme.typography.headlineSmall,
-            textAlign = TextAlign.Center,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .widthIn(max = 240.dp)
                 .padding(top = 16.dp)
-        )
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            if (!subtitle.isNullOrEmpty()) {
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+        }
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -248,7 +279,8 @@ private fun NowPlayingBarPreview() {
                 isPlaying = true,
                 isFavorite = true,
                 onToggleFavorite = {},
-                onTogglePlayPause = {}
+                onTogglePlayPause = {},
+                subtitle = "Now playing: Cool Song"
             )
         }
     }
@@ -274,7 +306,8 @@ private fun NowPlayingBarLandscapePreview() {
                 isPlaying = false,
                 isFavorite = false,
                 onToggleFavorite = {},
-                onTogglePlayPause = {}
+                onTogglePlayPause = {},
+                subtitle = "Now playing: Cool Song"
             )
         }
     }
