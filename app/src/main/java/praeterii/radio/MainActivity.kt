@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import praeterii.radio.compose.screen.RadioScreen
 import praeterii.radio.theme.RadioTheme
@@ -44,7 +45,7 @@ private fun RadioApp(viewModel: RadioViewModel = viewModel()) {
         currentCountryCode = viewModel.currentCountryCode,
         searchQuery = viewModel.searchQuery,
         onSearchQueryChange = { viewModel.onSearchQueryChange(it) },
-        title = viewModel.currentMediaItem?.mediaMetadata?.artist?.toString() ?: "Unknown Station",
+        title = viewModel.currentMediaItem?.mediaMetadata?.artist?.toString() ?: stringResource(R.string.app_name),
         artworkUri = viewModel.currentMediaItem?.mediaMetadata?.artworkUri?.toString(),
         isPlaying = viewModel.isPlaying,
         isLoading = viewModel.isLoading,
