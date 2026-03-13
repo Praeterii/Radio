@@ -47,7 +47,7 @@ private fun RadioApp(viewModel: RadioViewModel = viewModel()) {
         onSearchQueryChange = { viewModel.onSearchQueryChange(it) },
         title = viewModel.currentMediaItem?.mediaMetadata?.artist?.toString() ?: stringResource(R.string.app_name),
         artworkUri = viewModel.currentMediaItem?.mediaMetadata?.artworkUri?.toString(),
-        isPlaying = viewModel.isPlaying,
+        isPlaying = viewModel.isPlaying.value,
         isLoading = viewModel.isLoading,
         showPlayerBar = viewModel.isNowPlayingBarVisible,
         errorMessage = viewModel.errorMessage,
@@ -56,7 +56,7 @@ private fun RadioApp(viewModel: RadioViewModel = viewModel()) {
         onOpenCountryPicker = { viewModel.loadCountries() },
         onCountrySelect = { viewModel.selectCountry(it) },
         onTogglePlayPause = { viewModel.togglePlayPause() },
-        currentlyPlayingId = viewModel.currentlyPlayingId,
+        currentlyPlayingId = viewModel.currentMediaItem?.mediaId,
         onRetry = { viewModel.loadStations() }
     )
 }

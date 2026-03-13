@@ -48,7 +48,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         private set
 
     val currentMediaItem get() = playbackManager.currentMediaItem
-    val isPlaying get() = playbackManager.isPlaying
+    val isPlaying get() = mutableStateOf(playbackManager.isPlaying)
 
     var errorMessage by mutableStateOf<String?>(null)
         private set
@@ -64,9 +64,6 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
     val favoriteStationIds: StateFlow<Set<String>> = favoritesRepository.allFavorites
         .map { favorites -> favorites.map { it.stationuuid }.toSet() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
-
-    val currentlyPlayingId: String?
-        get() = currentMediaItem?.mediaId
 
     private var searchJob: Job? = null
 
