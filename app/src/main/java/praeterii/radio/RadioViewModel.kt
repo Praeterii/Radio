@@ -76,7 +76,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
     fun loadStations(query: String = searchQuery) {
         errorMessage = null
         isLoading = true
-        SearchStationsUseCase(repository = api)(
+        SearchStationsUseCase(repository = api, favoriteStationIds = favoriteStationIds)(
             countryCode = currentCountryCode,
             query = query,
             limit = 1000,
@@ -146,12 +146,6 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
                 favoritesRepository.delete(station)
             } else {
                 favoritesRepository.insert(station)
-            }
-            // Re-sort the current list to keep favorites at the top
-            viewModelScope.launch(Dispatchers.Main) {
-                stations = stations.sortedByDescending { 
-                    if (it.stationuuid == station.stationuuid) !isFav else favoriteStationIds.value.contains(it.stationuuid)
-                }
             }
         }
     }
