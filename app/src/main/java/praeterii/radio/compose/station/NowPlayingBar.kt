@@ -26,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Devices.TABLET
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
@@ -33,6 +34,7 @@ import coil.request.ImageRequest
 import praeterii.radio.R
 import praeterii.radio.compose.commons.FavoriteButton
 import praeterii.radio.theme.RadioTheme
+import java.net.URLEncoder
 
 @Composable
 internal fun NowPlayingBarPortrait(
@@ -58,7 +60,8 @@ internal fun NowPlayingBarPortrait(
             StationFavicon(
                 artworkUri = artworkUri,
                 size = 48.dp,
-                clipShape = MaterialTheme.shapes.small
+                clipShape = MaterialTheme.shapes.small,
+                useLargeIcon = false
             )
 
             Text(
@@ -105,7 +108,8 @@ internal fun NowPlayingBarLandscape(
             artworkUri = artworkUri,
             size = 220.dp,
             clipShape = MaterialTheme.shapes.medium,
-            padding = 24.dp
+            padding = 24.dp,
+            useLargeIcon = true
         )
 
         Text(
@@ -145,7 +149,8 @@ private fun StationFavicon(
     size: Dp,
     clipShape: androidx.compose.ui.graphics.Shape,
     modifier: Modifier = Modifier,
-    padding: Dp = 8.dp
+    padding: Dp = 8.dp,
+    useLargeIcon: Boolean
 ) {
     val placeholderTint = if (isSystemInDarkTheme()) {
         MaterialTheme.colorScheme.onSurface
@@ -153,9 +158,11 @@ private fun StationFavicon(
         MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
     }
 
+    val dataUri = getFaviconUrl(artworkUri, useLargeIcon)
+
     SubcomposeAsyncImage(
         model = ImageRequest.Builder(LocalContext.current)
-            .data(artworkUri)
+            .data(dataUri)
             .crossfade(true)
             .build(),
         contentDescription = null,
@@ -176,6 +183,24 @@ private fun StationFavicon(
         } else {
             SubcomposeAsyncImageContent()
         }
+    }
+}
+
+// Based on https://dev.to/derlin/get-favicons-from-any-website-using-a-hidden-google-api-3p1e
+private fun getFaviconUrl(uri: String?, useLargeIcon: Boolean): String? {
+    if (!useLargeIcon || uri.isNullOrEmpty()) return uri
+
+    val host = try {
+        uri.toUri().host
+    } catch (e: Exception) {
+        null
+    }
+
+    return if (!host.isNullOrEmpty()) {
+        val encodedDomain = URLEncoder.encode(host, "UTF-8")
+        "https://www.google.com/s2/favicons?domain=$encodedDomain&sz=128"
+    } else {
+        uri
     }
 }
 
