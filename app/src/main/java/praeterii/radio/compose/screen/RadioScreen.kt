@@ -61,6 +61,7 @@ internal fun RadioScreen(
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
     title: String,
+    subtitle: String? = null,
     artworkUri: String?,
     showPlayerBar: Boolean,
     isPlaying: Boolean,
@@ -71,7 +72,7 @@ internal fun RadioScreen(
     onOpenCountryPicker: () -> Unit,
     onCountrySelect: (RadioCountry) -> Unit,
     onTogglePlayPause: () -> Unit,
-    onRetry: () -> Unit
+    onRetry: () -> Unit,
 ) {
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -112,7 +113,8 @@ internal fun RadioScreen(
                         stations.find { it.stationuuid == currentlyPlayingId }?.let { onToggleFavorite(it) }
                     },
                     onTogglePlayPause = onTogglePlayPause,
-                    modifier = Modifier.padding(paddingValues = WindowInsets.navigationBars.asPaddingValues())
+                    modifier = Modifier.padding(paddingValues = WindowInsets.navigationBars.asPaddingValues()),
+                    subtitle = subtitle
                 )
             }
         }
@@ -121,6 +123,7 @@ internal fun RadioScreen(
             stations = stations,
             favoriteStationIds = favoriteStationIds,
             title = title,
+            subtitle = subtitle,
             artworkUri = artworkUri,
             currentlyPlayingId = currentlyPlayingId,
             showPlayerBar = showPlayerBar,
@@ -160,6 +163,7 @@ private fun RadioContent(
     stations: List<RadioModel>,
     favoriteStationIds: Set<String>,
     title: String,
+    subtitle: String?,
     artworkUri: String?,
     currentlyPlayingId: String?,
     showPlayerBar: Boolean,
@@ -171,7 +175,7 @@ private fun RadioContent(
     onToggleFavorite: (RadioModel) -> Unit,
     onTogglePlayPause: () -> Unit,
     onRetry: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Box(
         modifier = modifier.fillMaxSize()
@@ -238,7 +242,8 @@ private fun RadioContent(
                                     onToggleFavorite = {
                                         stations.find { it.stationuuid == currentlyPlayingId }?.let { onToggleFavorite(it) }
                                     },
-                                    onTogglePlayPause = onTogglePlayPause
+                                    onTogglePlayPause = onTogglePlayPause,
+                                    subtitle = subtitle
                                 )
                             }
                         }

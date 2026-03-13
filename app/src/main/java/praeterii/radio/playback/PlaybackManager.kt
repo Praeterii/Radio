@@ -21,14 +21,21 @@ class PlaybackManager(context: Context) {
         private set
     var isPlaying by mutableStateOf(false)
         private set
+    var currentMetadata by mutableStateOf<androidx.media3.common.MediaMetadata?>(null)
+        private set
 
     private val playerListener = object : Player.Listener {
         override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
             currentMediaItem = mediaItem
+            currentMetadata = mediaItem?.mediaMetadata
         }
 
         override fun onIsPlayingChanged(playing: Boolean) {
             isPlaying = playing
+        }
+
+        override fun onMediaMetadataChanged(mediaMetadata: androidx.media3.common.MediaMetadata) {
+            currentMetadata = mediaMetadata
         }
     }
 
@@ -39,6 +46,7 @@ class PlaybackManager(context: Context) {
             controller?.let { controller ->
                 controller.addListener(playerListener)
                 currentMediaItem = controller.currentMediaItem
+                currentMetadata = controller.currentMediaItem?.mediaMetadata
                 isPlaying = controller.isPlaying
             }
         }, MoreExecutors.directExecutor())

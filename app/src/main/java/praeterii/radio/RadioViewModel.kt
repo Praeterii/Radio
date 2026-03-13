@@ -48,6 +48,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         private set
 
     val currentMediaItem get() = playbackManager.currentMediaItem
+    val currentMetadata get() = playbackManager.currentMetadata
     val isPlaying get() = mutableStateOf(playbackManager.isPlaying)
 
     var errorMessage by mutableStateOf<String?>(null)
