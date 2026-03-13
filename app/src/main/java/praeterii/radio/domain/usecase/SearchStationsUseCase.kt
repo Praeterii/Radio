@@ -19,7 +19,7 @@ class SearchStationsUseCase(
         offset: Int = 0,
         limit: Int = 1000,
         onSuccess: (List<RadioModel>) -> Unit,
-        onFail: (String?) -> Unit
+        onFail: (Exception) -> Unit
     ) = CoroutineScope(Dispatchers.IO).launch {
         try {
             repository.searchStationsByCountry(countryCode, query, offset, limit)
@@ -39,7 +39,7 @@ class SearchStationsUseCase(
         } catch (e: Exception) {
             ensureActive()
             Log.e(SearchStationsUseCase::class.java.name, e.message ?: "Unknown error")
-            onFail.invoke(e.message)
+            onFail.invoke(e)
         }
     }
 }

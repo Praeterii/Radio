@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
 import praeterii.radio.repository.RadioStationsRepository
 import praeterii.radio.data.RadioStationOrder
@@ -27,6 +28,7 @@ import praeterii.radio.domain.usecase.SearchStationsUseCase
 import praeterii.radio.playback.PlaybackManager
 import praeterii.radio.repository.FavoritesRepository
 import praeterii.radio.repository.LocaleRepository
+import praeterii.radio.util.toErrorMessage
 
 @Keep
 class RadioViewModel(application: Application) : AndroidViewModel(application) {
@@ -80,7 +82,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
                 isLoading = false
             },
             onFail = { error ->
-                errorMessage = error ?: "Failed to load stations"
+                errorMessage = error.toErrorMessage(application)
                 isLoading = false
             }
         )
