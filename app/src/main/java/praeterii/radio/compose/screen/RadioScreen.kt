@@ -254,7 +254,7 @@ private fun RadioContent(
     }
 }
 
-@Preview
+@Preview(showSystemUi = true)
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 @Preview(device = TABLET)
 @Composable
