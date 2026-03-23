@@ -2,6 +2,8 @@
 
 A simple Android radio application built with Jetpack Compose, Material 3, and Media3.
 
+![Radio App](radio.jpg)
+
 ## Features
 
 - **Global Radio Stations**: Lists radio stations based on locale using the [Radio Browser API](https://github.com/r-cohen/RadioBrowser-Android).
