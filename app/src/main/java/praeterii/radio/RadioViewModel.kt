@@ -7,7 +7,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
 import praeterii.radio.repository.RadioStationsRepository
 import praeterii.radio.data.RadioStationOrder
@@ -31,7 +30,7 @@ import praeterii.radio.repository.LocaleRepository
 import praeterii.radio.util.toErrorMessage
 
 @Keep
-class RadioViewModel(application: Application) : AndroidViewModel(application) {
+class RadioViewModel(private val application: Application) : AndroidViewModel(application) {
     private val api by lazy { RadioStationsRepository(application) }
     private val localeRepository by lazy { LocaleRepository(application) }
     private val favoritesRepository by lazy {
@@ -72,8 +71,13 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
 
     fun loadStations(query: String = searchQuery) {
         errorMessage = null
-        isLoading = true
+        if (isLoading) {
+            return
+        } else {
+            isLoading = true
+        }
         SearchStationsUseCase(repository = api, favoriteStationIds = favoriteStationIds)(
+            scope = viewModelScope,
             countryCode = currentCountryCode,
             query = query,
             limit = 1000,
@@ -103,6 +107,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         
         isCountriesLoading = true
         GetCountriesUseCase(repository = api, localeRepository = localeRepository)(
+            scope = viewModelScope,
             order = RadioStationOrder.NAME,
             onSuccess = { result ->
                 countries = result
@@ -126,6 +131,7 @@ class RadioViewModel(application: Application) : AndroidViewModel(application) {
         playbackManager.play(station.toMediaItem())
 
         RegisterStationClickUseCase(repository = api)(
+            scope = viewModelScope,
             stationUuid = station.stationuuid,
             onSuccess = { result ->
                 Log.d("RadioViewModel", "Station click registered: ${result.ok}")
