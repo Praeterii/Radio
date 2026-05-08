@@ -3,6 +3,8 @@ package praeterii.radio.playback
 import android.app.PendingIntent
 import android.content.Intent
 import androidx.annotation.OptIn
+import androidx.media3.common.AudioAttributes
+import androidx.media3.common.C
 import androidx.media3.common.ForwardingPlayer
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.util.UnstableApi
@@ -21,7 +23,14 @@ class PlaybackService : MediaSessionService() {
     override fun onCreate() {
         super.onCreate()
 
-        val player = ExoPlayer.Builder(this).build()
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(C.USAGE_MEDIA)
+            .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
+            .build()
+
+        val player = ExoPlayer.Builder(this)
+            .setAudioAttributes(audioAttributes, true)
+            .build()
 
         // Use ForwardingPlayer to provide a fallback title for the notification
         val forwardingPlayer = object : ForwardingPlayer(player) {
