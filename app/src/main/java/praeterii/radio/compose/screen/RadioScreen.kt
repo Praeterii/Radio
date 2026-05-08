@@ -39,8 +39,6 @@ import androidx.compose.ui.tooling.preview.Devices.TABLET
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import praeterii.radio.data.RadioCountry
-import praeterii.radio.compose.country.CountryPickerSheet
 import praeterii.radio.compose.commons.FadingDivider
 import praeterii.radio.compose.commons.ErrorState
 import praeterii.radio.compose.station.NowPlayingBarPortrait
@@ -54,9 +52,6 @@ import praeterii.radio.theme.RadioTheme
 internal fun RadioScreen(
     stations: List<RadioModel>,
     favoriteStationIds: Set<String>,
-    countries: List<RadioCountry>,
-    isCountriesLoading: Boolean,
-    currentCountryCode: String,
     currentlyPlayingId: String?,
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
@@ -69,14 +64,12 @@ internal fun RadioScreen(
     errorMessage: String?,
     onStationClick: (RadioModel) -> Unit,
     onToggleFavorite: (RadioModel) -> Unit,
-    onOpenCountryPicker: () -> Unit,
-    onCountrySelect: (RadioCountry) -> Unit,
     onTogglePlayPause: () -> Unit,
+    onSettingsClick: () -> Unit,
     onRetry: () -> Unit,
 ) {
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-    var showCountryPicker by remember { mutableStateOf(false) }
     var isSearchVisible by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
 
@@ -92,9 +85,7 @@ internal fun RadioScreen(
                 onSearchToggle = { isSearchVisible = it },
                 searchQuery = searchQuery,
                 onSearchQueryChange = onSearchQueryChange,
-                currentCountryCode = currentCountryCode,
-                onOpenCountryPicker = onOpenCountryPicker,
-                onShowCountryPicker = { showCountryPicker = true },
+                onSettingsClick = onSettingsClick,
                 focusRequester = focusRequester
             )
         },
@@ -137,18 +128,6 @@ internal fun RadioScreen(
             onRetry = onRetry,
             modifier = Modifier.padding(paddingValues)
         )
-
-        if (showCountryPicker) {
-            CountryPickerSheet(
-                countries = countries,
-                isLoading = isCountriesLoading,
-                onCountrySelect = {
-                    onCountrySelect(it)
-                    showCountryPicker = false
-                },
-                onDismissRequest = { showCountryPicker = false }
-            )
-        }
     }
 
     LaunchedEffect(key1 = isSearchVisible) {
@@ -266,9 +245,6 @@ private fun RadioScreenPreview(
             RadioScreen(
                 stations = state.stations,
                 favoriteStationIds = emptySet(),
-                countries = emptyList(),
-                isCountriesLoading = false,
-                currentCountryCode = state.currentCountryCode,
                 currentlyPlayingId = null,
                 searchQuery = "",
                 onSearchQueryChange = {},
@@ -280,9 +256,8 @@ private fun RadioScreenPreview(
                 errorMessage = null,
                 onStationClick = {},
                 onToggleFavorite = {},
-                onOpenCountryPicker = {},
-                onCountrySelect = {},
                 onTogglePlayPause = {},
+                onSettingsClick = {},
                 onRetry = {}
             )
         }

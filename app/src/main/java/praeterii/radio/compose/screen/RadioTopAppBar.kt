@@ -6,12 +6,10 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,7 +29,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.murgupluoglu.flagkit.FlagKit
 import praeterii.radio.R
 import praeterii.radio.theme.RadioTheme
 
@@ -42,9 +39,7 @@ internal fun RadioTopAppBar(
     onSearchToggle: (Boolean) -> Unit,
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
-    currentCountryCode: String,
-    onOpenCountryPicker: () -> Unit,
-    onShowCountryPicker: () -> Unit,
+    onSettingsClick: () -> Unit,
     focusRequester: FocusRequester
 ) {
     Column {
@@ -64,18 +59,11 @@ internal fun RadioTopAppBar(
                     )
                 }
 
-                val flagResId = FlagKit.getResId(currentCountryCode)
-                if (flagResId != 0) {
-                    IconButton(onClick = {
-                        onOpenCountryPicker()
-                        onShowCountryPicker()
-                    }) {
-                        Image(
-                            painter = painterResource(flagResId),
-                            contentDescription = "Select Country",
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
+                IconButton(onClick = onSettingsClick) {
+                    Icon(
+                        painter = painterResource(R.drawable.settings_24px),
+                        contentDescription = "Settings"
+                    )
                 }
             }
         )
@@ -147,9 +135,7 @@ private fun RadioTopAppBarPreview() {
                 onSearchToggle = {},
                 searchQuery = "",
                 onSearchQueryChange = {},
-                currentCountryCode = "GB",
-                onOpenCountryPicker = {},
-                onShowCountryPicker = {},
+                onSettingsClick = {},
                 focusRequester = remember { FocusRequester() }
             )
         }
@@ -167,9 +153,7 @@ private fun RadioTopAppBarSearchPreview() {
                 onSearchToggle = {},
                 searchQuery = "Radio",
                 onSearchQueryChange = {},
-                currentCountryCode = "PL",
-                onOpenCountryPicker = {},
-                onShowCountryPicker = {},
+                onSettingsClick = {},
                 focusRequester = remember { FocusRequester() }
             )
         }

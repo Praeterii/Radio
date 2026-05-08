@@ -9,8 +9,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import praeterii.radio.repository.RadioStationsRepository
-import praeterii.radio.data.RadioStationOrder
-import praeterii.radio.data.RadioCountry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -21,7 +19,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import praeterii.radio.data.local.RadioDatabase
 import praeterii.radio.domain.model.RadioModel
-import praeterii.radio.domain.usecase.GetCountriesUseCase
 import praeterii.radio.domain.usecase.RegisterStationClickUseCase
 import praeterii.radio.domain.usecase.SearchStationsUseCase
 import praeterii.radio.playback.PlaybackManager
@@ -30,9 +27,9 @@ import praeterii.radio.repository.LocaleRepository
 import praeterii.radio.util.toErrorMessage
 
 @Keep
-class RadioViewModel(private val application: Application) : AndroidViewModel(application) {
+internal class RadioViewModel(private val application: Application) : AndroidViewModel(application) {
     private val api by lazy { RadioStationsRepository(application) }
-    private val localeRepository by lazy { LocaleRepository(application) }
+    private val localeRepository by lazy { LocaleRepository.getInstance(application) }
     private val favoritesRepository by lazy {
         FavoritesRepository(RadioDatabase.getDatabase(application).favoriteDao())
     }
@@ -41,11 +38,6 @@ class RadioViewModel(private val application: Application) : AndroidViewModel(ap
 
     var stations by mutableStateOf<List<RadioModel>>(emptyList())
     var currentCountryCode by mutableStateOf(localeRepository.getCurrentCountryCode())
-        private set
-
-    var countries by mutableStateOf<List<RadioCountry>>(emptyList())
-        private set
-    var isCountriesLoading by mutableStateOf(false)
         private set
 
     val currentMediaItem get() = playbackManager.currentMediaItem
@@ -68,6 +60,18 @@ class RadioViewModel(private val application: Application) : AndroidViewModel(ap
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
 
     private var searchJob: Job? = null
+
+    init {
+        viewModelScope.launch {
+            localeRepository.countryCode.collect { newCountryCode ->
+                if (currentCountryCode != newCountryCode) {
+                    currentCountryCode = newCountryCode
+                    searchQuery = ""
+                    loadStations()
+                }
+            }
+        }
+    }
 
     fun loadStations(query: String = searchQuery) {
         errorMessage = null
@@ -100,30 +104,6 @@ class RadioViewModel(private val application: Application) : AndroidViewModel(ap
             delay(333)
             loadStations(query)
         }
-    }
-
-    fun loadCountries() {
-        if (countries.isNotEmpty() || isCountriesLoading) return
-        
-        isCountriesLoading = true
-        GetCountriesUseCase(repository = api, localeRepository = localeRepository)(
-            scope = viewModelScope,
-            order = RadioStationOrder.NAME,
-            onSuccess = { result ->
-                countries = result
-                isCountriesLoading = false
-            },
-            onFail = {
-                isCountriesLoading = false
-            }
-        )
-    }
-
-    fun selectCountry(country: RadioCountry) {
-        localeRepository.setOverrideCountryCode(country.iso_3166_1)
-        currentCountryCode = country.iso_3166_1
-        searchQuery = ""
-        loadStations()
     }
 
     fun playStation(station: RadioModel) {
