@@ -11,25 +11,32 @@ import kotlinx.coroutines.launch
 import praeterii.radio.data.RadioCountry
 import praeterii.radio.data.RadioStationOrder
 import praeterii.radio.domain.usecase.GetCountriesUseCase
-import praeterii.radio.repository.LocaleRepository
+import praeterii.radio.repository.SettingsRepository
 import praeterii.radio.repository.RadioStationsRepository
 
 @Keep
 internal class SettingsViewModel(application: Application) : AndroidViewModel(application) {
     private val api by lazy { RadioStationsRepository(application) }
-    private val localeRepository by lazy { LocaleRepository.getInstance(application) }
+    private val settingsRepository by lazy { SettingsRepository.getInstance(application) }
 
     var countries by mutableStateOf<List<RadioCountry>>(emptyList())
         private set
     var isCountriesLoading by mutableStateOf(false)
         private set
-    var currentCountryCode by mutableStateOf(localeRepository.getCurrentCountryCode())
+    var currentCountryCode by mutableStateOf(settingsRepository.getCurrentCountryCode())
+        private set
+    var stopPlaybackOnTaskRemoved by mutableStateOf(settingsRepository.getStopPlaybackOnTaskRemoved())
         private set
 
     init {
         viewModelScope.launch {
-            localeRepository.countryCode.collect {
+            settingsRepository.countryCode.collect {
                 currentCountryCode = it
+            }
+        }
+        viewModelScope.launch {
+            settingsRepository.stopPlaybackOnTaskRemoved.collect {
+                stopPlaybackOnTaskRemoved = it
             }
         }
     }
@@ -38,7 +45,7 @@ internal class SettingsViewModel(application: Application) : AndroidViewModel(ap
         if (countries.isNotEmpty() || isCountriesLoading) return
 
         isCountriesLoading = true
-        GetCountriesUseCase(repository = api, localeRepository = localeRepository)(
+        GetCountriesUseCase(repository = api, localeRepository = settingsRepository)(
             scope = viewModelScope,
             order = RadioStationOrder.NAME,
             onSuccess = { result ->
@@ -52,6 +59,10 @@ internal class SettingsViewModel(application: Application) : AndroidViewModel(ap
     }
 
     fun selectCountry(country: RadioCountry) {
-        localeRepository.setOverrideCountryCode(country.iso_3166_1)
+        settingsRepository.setOverrideCountryCode(country.iso_3166_1)
+    }
+
+    fun updateStopPlaybackOnTaskRemoved(stop: Boolean) {
+        settingsRepository.setStopPlaybackOnTaskRemoved(stop)
     }
 }

@@ -12,4 +12,9 @@
     <string name="error_server_timeout">Serwer zbyt długo nie odpowiada</string>
     <string name="error_network">Błąd sieci. Sprawdź swoje połączenie</string>
     <string name="error_unknown">Nieznany błąd $1%s</string>
+    <string name="settings_title">Ustawienia</string>
+    <string name="back">Wstecz</string>
+    <string name="settings_country">Kraj</string>
+    <string name="settings_stop_playback_on_app_close">Zatrzymaj odtwarzanie po zamknięciu aplikacji</string>
+    <string name="settings_stop_playback_on_app_close_description">Jeśli włączone, odtwarzanie zostanie zatrzymane po usunięciu aplikacji z ostatnich zadań.</string>
 </resources>

@@ -11,9 +11,11 @@ import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import praeterii.radio.MainActivity
 import praeterii.radio.R
+import praeterii.radio.repository.SettingsRepository
 
 class PlaybackService : MediaSessionService() {
     private var mediaSession: MediaSession? = null
+    private val settingsRepository by lazy { SettingsRepository.getInstance(this) }
 
     @OptIn(UnstableApi::class)
     override fun onCreate() {
@@ -59,8 +61,10 @@ class PlaybackService : MediaSessionService() {
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         val player = mediaSession?.player ?: return
-        // If the radio is paused or has no content, stop the service to save battery
-        if (!player.playWhenReady || player.mediaItemCount == 0) {
+        val stopPlaybackOnTaskRemoved = settingsRepository.getStopPlaybackOnTaskRemoved()
+        
+        // If the radio is paused, has no content, or the user wants to stop on app close, stop the service
+        if (!player.playWhenReady || player.mediaItemCount == 0 || stopPlaybackOnTaskRemoved) {
             stopSelf()
         }
     }

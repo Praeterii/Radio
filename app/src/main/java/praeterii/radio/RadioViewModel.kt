@@ -23,13 +23,13 @@ import praeterii.radio.domain.usecase.RegisterStationClickUseCase
 import praeterii.radio.domain.usecase.SearchStationsUseCase
 import praeterii.radio.playback.PlaybackManager
 import praeterii.radio.repository.FavoritesRepository
-import praeterii.radio.repository.LocaleRepository
+import praeterii.radio.repository.SettingsRepository
 import praeterii.radio.util.toErrorMessage
 
 @Keep
 internal class RadioViewModel(private val application: Application) : AndroidViewModel(application) {
     private val api by lazy { RadioStationsRepository(application) }
-    private val localeRepository by lazy { LocaleRepository.getInstance(application) }
+    private val settingsRepository by lazy { SettingsRepository.getInstance(application) }
     private val favoritesRepository by lazy {
         FavoritesRepository(RadioDatabase.getDatabase(application).favoriteDao())
     }
@@ -37,7 +37,7 @@ internal class RadioViewModel(private val application: Application) : AndroidVie
     private val playbackManager = PlaybackManager(application)
 
     var stations by mutableStateOf<List<RadioModel>>(emptyList())
-    var currentCountryCode by mutableStateOf(localeRepository.getCurrentCountryCode())
+    var currentCountryCode by mutableStateOf(settingsRepository.getCurrentCountryCode())
         private set
 
     val currentMediaItem get() = playbackManager.currentMediaItem
@@ -63,7 +63,7 @@ internal class RadioViewModel(private val application: Application) : AndroidVie
 
     init {
         viewModelScope.launch {
-            localeRepository.countryCode.collect { newCountryCode ->
+            settingsRepository.countryCode.collect { newCountryCode ->
                 if (currentCountryCode != newCountryCode) {
                     currentCountryCode = newCountryCode
                     searchQuery = ""

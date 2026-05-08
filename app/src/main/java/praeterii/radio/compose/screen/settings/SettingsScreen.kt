@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.murgupluoglu.flagkit.FlagKit
@@ -30,6 +31,7 @@ import praeterii.radio.theme.RadioTheme
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.TopAppBarDefaults
 import praeterii.radio.R
 
@@ -39,6 +41,8 @@ internal fun SettingsScreen(
     countries: List<RadioCountry>,
     isCountriesLoading: Boolean,
     currentCountryCode: String,
+    stopPlaybackOnTaskRemoved: Boolean,
+    onStopPlaybackOnTaskRemovedChange: (Boolean) -> Unit,
     onOpenCountryPicker: () -> Unit,
     onCountrySelect: (RadioCountry) -> Unit,
     onBackClick: () -> Unit
@@ -48,7 +52,7 @@ internal fun SettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Settings") },
+                title = { Text(stringResource(R.string.settings_title)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -57,7 +61,7 @@ internal fun SettingsScreen(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             painter = painterResource(R.drawable.arrow_back_24px),
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.back)
                         )
                     }
                 }
@@ -72,7 +76,7 @@ internal fun SettingsScreen(
             item {
                 val flagResId = FlagKit.getResId(currentCountryCode)
                 ListItem(
-                    headlineContent = { Text("Country") },
+                    headlineContent = { Text(stringResource(R.string.settings_country)) },
                     supportingContent = { Text(currentCountryCode) },
                     trailingContent = {
                         if (flagResId != 0) {
@@ -86,6 +90,22 @@ internal fun SettingsScreen(
                     modifier = Modifier.clickable {
                         onOpenCountryPicker()
                         showCountryPicker = true
+                    }
+                )
+                HorizontalDivider()
+            }
+            item {
+                ListItem(
+                    headlineContent = { Text(stringResource(R.string.settings_stop_playback_on_app_close)) },
+                    supportingContent = { Text(stringResource(R.string.settings_stop_playback_on_app_close_description)) },
+                    trailingContent = {
+                        Switch(
+                            checked = stopPlaybackOnTaskRemoved,
+                            onCheckedChange = onStopPlaybackOnTaskRemovedChange
+                        )
+                    },
+                    modifier = Modifier.clickable {
+                        onStopPlaybackOnTaskRemovedChange(!stopPlaybackOnTaskRemoved)
                     }
                 )
                 HorizontalDivider()
@@ -120,6 +140,8 @@ private fun SettingsScreenPreview() {
                 ),
                 isCountriesLoading = false,
                 currentCountryCode = "PL",
+                stopPlaybackOnTaskRemoved = true,
+                onStopPlaybackOnTaskRemovedChange = {},
                 onOpenCountryPicker = {},
                 onCountrySelect = {},
                 onBackClick = {}

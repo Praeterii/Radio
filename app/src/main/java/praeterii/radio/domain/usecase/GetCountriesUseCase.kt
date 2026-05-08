@@ -8,12 +8,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import praeterii.radio.data.RadioCountry
 import praeterii.radio.data.RadioStationOrder
-import praeterii.radio.repository.LocaleRepository
+import praeterii.radio.repository.SettingsRepository
 import praeterii.radio.repository.RadioStationsRepository
 
 class GetCountriesUseCase(
     private val repository: RadioStationsRepository,
-    private val localeRepository: LocaleRepository
+    private val localeRepository: SettingsRepository
 ) {
     operator fun invoke(
         scope: CoroutineScope,
