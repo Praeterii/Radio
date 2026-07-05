@@ -29,6 +29,11 @@ class GetCountriesUseCase(
                 }.thenBy { country -> country.name }
 
                 repository.getCountries(order)
+                    .filter { country ->
+                        country.name.isNotBlank() &&
+                        country.iso_3166_1.isNotBlank() &&
+                        !country.name.equals("unknown", ignoreCase = true)
+                    }
                     .sortedWith(comparator)
             }
             onSuccess(sortedCountries)
