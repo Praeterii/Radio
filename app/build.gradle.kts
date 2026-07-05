@@ -13,7 +13,7 @@ android {
     defaultConfig {
         applicationId = "praeterii.radio"
         minSdk = 28
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 6
         versionName = "1.5"
 

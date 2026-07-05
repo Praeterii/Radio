@@ -5,14 +5,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import praeterii.radio.domain.model.RadioModel
 import praeterii.radio.repository.RadioStationsRepository
 
-class SearchStationsUseCase(
+internal class SearchStationsUseCase(
     private val repository: RadioStationsRepository,
     private val favoriteStationIds: StateFlow<Set<String>>,
+    private val getFavoritesUseCase: GetFavoritesUseCase,
 ) {
     operator fun invoke(
         scope: CoroutineScope,
@@ -28,7 +30,7 @@ class SearchStationsUseCase(
             val result = withContext(Dispatchers.IO) {
                 val stations = repository.searchStationsByCountry(countryCode, query, offset, limit)
                 originalCount = stations.size
-                stations.distinctBy { stationModel ->
+                val mappedResults = stations.distinctBy { stationModel ->
                         stationModel.url_resolved
                     }.map { stationModel ->
                         RadioModel(
@@ -38,9 +40,16 @@ class SearchStationsUseCase(
                             favicon = stationModel.favicon,
                             tags = stationModel.tags.replace(",", " "),
                         )
-                    }.sortedByDescending { radioModel ->
+                    }
+                
+                if (offset == 0 && query.isEmpty()) {
+                    val favorites = getFavoritesUseCase().first()
+                    (favorites + mappedResults).distinctBy { it.stationuuid }
+                } else {
+                    mappedResults.sortedByDescending { radioModel ->
                         favoriteStationIds.value.contains(radioModel.stationuuid)
                     }
+                }
             }
             onSuccess(result, originalCount)
         } catch (e: Exception) {

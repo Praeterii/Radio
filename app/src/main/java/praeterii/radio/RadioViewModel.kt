@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import praeterii.radio.data.local.RadioDatabase
 import praeterii.radio.domain.model.RadioModel
+import praeterii.radio.domain.usecase.GetFavoritesUseCase
 import praeterii.radio.domain.usecase.RegisterStationClickUseCase
 import praeterii.radio.domain.usecase.SearchStationsUseCase
 import praeterii.radio.playback.PlaybackManager
@@ -33,6 +34,7 @@ internal class RadioViewModel(private val application: Application) : AndroidVie
     private val favoritesRepository by lazy {
         FavoritesRepository(RadioDatabase.getDatabase(application).favoriteDao())
     }
+    private val getFavoritesUseCase by lazy { GetFavoritesUseCase(favoritesRepository) }
     
     private val playbackManager = PlaybackManager(application)
 
@@ -89,7 +91,11 @@ internal class RadioViewModel(private val application: Application) : AndroidVie
         }
         currentOffset = 0
         canLoadMore = true
-        SearchStationsUseCase(repository = api, favoriteStationIds = favoriteStationIds)(
+        SearchStationsUseCase(
+            repository = api,
+            favoriteStationIds = favoriteStationIds,
+            getFavoritesUseCase = getFavoritesUseCase
+        )(
             scope = viewModelScope,
             countryCode = currentCountryCode,
             query = query,
@@ -112,7 +118,11 @@ internal class RadioViewModel(private val application: Application) : AndroidVie
         if (isLoadingMore || !canLoadMore || isLoading) return
 
         isLoadingMore = true
-        SearchStationsUseCase(repository = api, favoriteStationIds = favoriteStationIds)(
+        SearchStationsUseCase(
+            repository = api,
+            favoriteStationIds = favoriteStationIds,
+            getFavoritesUseCase = getFavoritesUseCase
+        )(
             scope = viewModelScope,
             countryCode = currentCountryCode,
             query = searchQuery,
