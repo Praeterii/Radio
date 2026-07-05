@@ -32,8 +32,15 @@ class PlaybackService : MediaSessionService() {
             .setAudioAttributes(audioAttributes, true)
             .build()
 
-        // Use ForwardingPlayer to provide a fallback title for the notification
+        // Use ForwardingPlayer to provide a fallback title and handle live sync on resume
         val forwardingPlayer = object : ForwardingPlayer(player) {
+            override fun play() {
+                if (isCurrentMediaItemLive) {
+                    seekToDefaultPosition()
+                }
+                super.play()
+            }
+
             override fun getMediaMetadata(): MediaMetadata {
                 val metadata = super.getMediaMetadata()
                 if (metadata.title.isNullOrEmpty()) {
