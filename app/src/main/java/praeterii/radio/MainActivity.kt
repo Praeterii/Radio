@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -57,12 +58,21 @@ private fun RadioApp(viewModel: RadioViewModel = viewModel()) {
             }
         ) {
             val favoriteStationIds by viewModel.favoriteStationIds.collectAsState()
+            
+            val onSearchQueryChange = remember(viewModel) { { query: String -> viewModel.onSearchQueryChange(query) } }
+            val onStationClick = remember(viewModel) { { station: praeterii.radio.domain.model.RadioModel -> viewModel.playStation(station) } }
+            val onToggleFavorite = remember(viewModel) { { station: praeterii.radio.domain.model.RadioModel -> viewModel.toggleFavorite(station) } }
+            val onTogglePlayPause = remember(viewModel) { { viewModel.togglePlayPause() } }
+            val onLoadMore = remember(viewModel) { { viewModel.loadMoreStations() } }
+            val onRetry = remember(viewModel) { { viewModel.loadStations() } }
+            val onSettingsClick = remember { { navController.navigate("settings") } }
+
             RadioScreen(
                 stations = viewModel.stations,
                 favoriteStationIds = favoriteStationIds,
                 currentlyPlayingId = viewModel.currentMediaItem?.mediaId,
                 searchQuery = viewModel.searchQuery,
-                onSearchQueryChange = { viewModel.onSearchQueryChange(it) },
+                onSearchQueryChange = onSearchQueryChange,
                 title = viewModel.currentMetadata?.artist?.toString() ?: stringResource(R.string.app_name),
                 subtitle = viewModel.currentMetadata?.title?.toString(),
                 artworkUri = viewModel.currentMetadata?.artworkUri?.toString(),
@@ -71,12 +81,12 @@ private fun RadioApp(viewModel: RadioViewModel = viewModel()) {
                 isLoadingMore = viewModel.isLoadingMore,
                 showPlayerBar = viewModel.isNowPlayingBarVisible,
                 errorMessage = viewModel.errorMessage,
-                onStationClick = { viewModel.playStation(it) },
-                onToggleFavorite = { viewModel.toggleFavorite(it) },
-                onTogglePlayPause = { viewModel.togglePlayPause() },
-                onSettingsClick = { navController.navigate("settings") },
-                onLoadMore = { viewModel.loadMoreStations() },
-                onRetry = { viewModel.loadStations() },
+                onStationClick = onStationClick,
+                onToggleFavorite = onToggleFavorite,
+                onTogglePlayPause = onTogglePlayPause,
+                onSettingsClick = onSettingsClick,
+                onLoadMore = onLoadMore,
+                onRetry = onRetry,
             )
         }
         composable(

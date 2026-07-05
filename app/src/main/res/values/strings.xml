@@ -16,5 +16,5 @@
     <string name="back">Back</string>
     <string name="settings_country">Country</string>
     <string name="settings_stop_playback_on_app_close">Stop playback on app close</string>
-    <string name="settings_stop_playback_on_app_close_description">If enabled, playback will stop when the app is removed from recent apps.</string>
+    <string name="settings_stop_playback_on_app_close_description">If enabled, playback will stop when the app is removed from recent apps. This setting might be overwritten by your phone, e.g by battery saver.</string>
 </resources>

@@ -22,12 +22,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -183,7 +185,24 @@ private fun RadioContent(
                 Row(
                     modifier = Modifier.fillMaxSize()
                 ) {
+                    val listState = rememberLazyListState()
+                    val shouldLoadMore by remember {
+                        derivedStateOf {
+                            val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
+                                ?: return@derivedStateOf false
+
+                            lastVisibleItem.index >= listState.layoutInfo.totalItemsCount - 5
+                        }
+                    }
+
+                    LaunchedEffect(shouldLoadMore) {
+                        if (shouldLoadMore) {
+                            onLoadMore()
+                        }
+                    }
+
                     LazyColumn(
+                        state = listState,
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxHeight()
@@ -192,11 +211,6 @@ private fun RadioContent(
                             items = stations,
                             key = { _, station -> station.stationuuid }
                         ) { index, station ->
-                            if (index >= stations.size - 20) {
-                                LaunchedEffect(stations.size) {
-                                    onLoadMore()
-                                }
-                            }
                             StationItem(
                                 station = station,
                                 isFavorite = favoriteStationIds.contains(station.stationuuid),

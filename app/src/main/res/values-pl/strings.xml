@@ -16,5 +16,5 @@
     <string name="back">Wstecz</string>
     <string name="settings_country">Kraj</string>
     <string name="settings_stop_playback_on_app_close">Zatrzymaj odtwarzanie po zamknięciu aplikacji</string>
-    <string name="settings_stop_playback_on_app_close_description">Jeśli włączone, odtwarzanie zostanie zatrzymane po usunięciu aplikacji z ostatnich zadań.</string>
+    <string name="settings_stop_playback_on_app_close_description">Jeśli włączone, odtwarzanie zostanie zatrzymane po usunięciu aplikacji z ostatnich zadań. To ustawienie może zostać nadpisane przez Twój telefon np przy włączonym oszczędzaniu energii.</string>
 </resources>

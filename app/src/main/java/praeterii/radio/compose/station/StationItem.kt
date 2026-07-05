@@ -20,9 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImagePainter
-import coil.compose.SubcomposeAsyncImage
-import coil.compose.SubcomposeAsyncImageContent
+import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import praeterii.radio.R
 import praeterii.radio.compose.commons.FavoriteButton
@@ -44,36 +42,19 @@ internal fun StationItem(
             .clickable(onClick = onClick)
             .padding(12.dp)
     ) {
-        val placeholderTint = if (isSystemInDarkTheme()) {
-            MaterialTheme.colorScheme.onSurface
-        } else {
-            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-        }
-
-        SubcomposeAsyncImage(
+        AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(station.favicon)
                 .crossfade(true)
                 .build(),
             contentDescription = null,
+            placeholder = painterResource(id = R.drawable.radio_filled_24px),
+            error = painterResource(id = R.drawable.radio_filled_24px),
             modifier = Modifier
                 .size(48.dp)
                 .padding(end = 12.dp)
-        ) {
-            val state = painter.state
-            if (state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error) {
-                Icon(
-                    painter = painterResource(id = R.drawable.radio_filled_24px),
-                    contentDescription = null,
-                    tint = placeholderTint,
-                    modifier = Modifier.size(48.dp)
-                )
-            } else {
-                SubcomposeAsyncImageContent(
-                    modifier = Modifier.size(48.dp)
-                )
-            }
-        }
+        )
+
         Column(
             modifier = Modifier.weight(1f)
         ) {

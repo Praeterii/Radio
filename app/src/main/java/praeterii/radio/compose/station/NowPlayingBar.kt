@@ -27,9 +27,7 @@ import androidx.compose.ui.tooling.preview.Devices.TABLET
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImagePainter
-import coil.compose.SubcomposeAsyncImage
-import coil.compose.SubcomposeAsyncImageContent
+import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import praeterii.radio.R
 import praeterii.radio.compose.commons.FavoriteButton
@@ -181,36 +179,19 @@ private fun StationFavicon(
     modifier: Modifier = Modifier,
     padding: Dp = 8.dp
 ) {
-    val placeholderTint = if (isSystemInDarkTheme()) {
-        MaterialTheme.colorScheme.onSurface
-    } else {
-        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-    }
-
-    SubcomposeAsyncImage(
+    AsyncImage(
         model = ImageRequest.Builder(LocalContext.current)
             .data(artworkUri)
             .crossfade(true)
             .build(),
         contentDescription = null,
+        placeholder = painterResource(R.drawable.radio_filled_24px),
+        error = painterResource(R.drawable.radio_filled_24px),
         modifier = modifier
             .size(size)
             .clip(clipShape)
-    ) {
-        val state = painter.state
-        if (state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error) {
-            Icon(
-                painter = painterResource(R.drawable.radio_filled_24px),
-                contentDescription = null,
-                tint = placeholderTint,
-                modifier = Modifier
-                    .size(size)
-                    .padding(padding)
-            )
-        } else {
-            SubcomposeAsyncImageContent()
-        }
-    }
+            .padding(if (artworkUri == null) padding else 0.dp)
+    )
 }
 
 @Composable
