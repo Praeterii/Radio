@@ -98,7 +98,7 @@ class RadioStationsRepository(
         countryCode: String,
         query: String = "",
         offset: Int = 0,
-        limit: Int = 1000,
+        limit: Int = 100,
     ): List<RadioStation> {
         initialize()
         return radioBrowserService.getStations(

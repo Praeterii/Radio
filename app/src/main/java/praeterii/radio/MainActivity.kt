@@ -68,12 +68,14 @@ private fun RadioApp(viewModel: RadioViewModel = viewModel()) {
                 artworkUri = viewModel.currentMetadata?.artworkUri?.toString(),
                 isPlaying = viewModel.isPlaying.value,
                 isLoading = viewModel.isLoading,
+                isLoadingMore = viewModel.isLoadingMore,
                 showPlayerBar = viewModel.isNowPlayingBarVisible,
                 errorMessage = viewModel.errorMessage,
                 onStationClick = { viewModel.playStation(it) },
                 onToggleFavorite = { viewModel.toggleFavorite(it) },
                 onTogglePlayPause = { viewModel.togglePlayPause() },
                 onSettingsClick = { navController.navigate("settings") },
+                onLoadMore = { viewModel.loadMoreStations() },
                 onRetry = { viewModel.loadStations() },
             )
         }

@@ -22,7 +22,7 @@ interface RadioStationApiService {
         @Query("name") name: String = "",
         @Query("countrycode") countrycode: String?,
         @Query("offset") offset: Int = 0,
-        @Query("limit") limit: Int = 1000,
+        @Query("limit") limit: Int = 100,
         @Query("order") order: String = RadioStationOrder.CLICKCOUNT.value,
         @Query("reverse") reverse: Boolean = true,
         @Query("is_https") isHttps: Boolean = true,

@@ -48,12 +48,19 @@ internal class RadioViewModel(private val application: Application) : AndroidVie
         private set
     var isLoading by mutableStateOf(false)
         private set
+    var isLoadingMore by mutableStateOf(false)
+        private set
+    var canLoadMore by mutableStateOf(true)
+        private set
 
     var isNowPlayingBarVisible by mutableStateOf(false)
         private set
 
     var searchQuery by mutableStateOf("")
         private set
+
+    private var currentOffset = 0
+    private val pageSize = 100
 
     val favoriteStationIds: StateFlow<Set<String>> = favoritesRepository.allFavorites
         .map { favorites -> favorites.map { it.stationuuid }.toSet() }
@@ -80,18 +87,46 @@ internal class RadioViewModel(private val application: Application) : AndroidVie
         } else {
             isLoading = true
         }
+        currentOffset = 0
+        canLoadMore = true
         SearchStationsUseCase(repository = api, favoriteStationIds = favoriteStationIds)(
             scope = viewModelScope,
             countryCode = currentCountryCode,
             query = query,
-            limit = 1000,
-            onSuccess = { result ->
+            offset = currentOffset,
+            limit = pageSize,
+            onSuccess = { result, originalCount ->
                 stations = result
                 isLoading = false
+                currentOffset += pageSize
+                canLoadMore = originalCount >= pageSize
             },
             onFail = { error ->
                 errorMessage = error.toErrorMessage(application)
                 isLoading = false
+            }
+        )
+    }
+
+    fun loadMoreStations() {
+        if (isLoadingMore || !canLoadMore || isLoading) return
+
+        isLoadingMore = true
+        SearchStationsUseCase(repository = api, favoriteStationIds = favoriteStationIds)(
+            scope = viewModelScope,
+            countryCode = currentCountryCode,
+            query = searchQuery,
+            offset = currentOffset,
+            limit = pageSize,
+            onSuccess = { result, originalCount ->
+                stations = (stations + result).distinctBy { it.stationuuid }
+                isLoadingMore = false
+                currentOffset += pageSize
+                canLoadMore = originalCount >= pageSize
+            },
+            onFail = { _ ->
+                isLoadingMore = false
+                canLoadMore = false // Stop trying if it fails? Or maybe let user retry.
             }
         )
     }

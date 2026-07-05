@@ -19,14 +19,16 @@ class SearchStationsUseCase(
         countryCode: String,
         query: String = "",
         offset: Int = 0,
-        limit: Int = 1000,
-        onSuccess: (List<RadioModel>) -> Unit,
+        limit: Int = 100,
+        onSuccess: (List<RadioModel>, Int) -> Unit,
         onFail: (Exception) -> Unit
     ) = scope.launch {
         try {
+            var originalCount = 0
             val result = withContext(Dispatchers.IO) {
-                repository.searchStationsByCountry(countryCode, query, offset, limit)
-                    .distinctBy { stationModel ->
+                val stations = repository.searchStationsByCountry(countryCode, query, offset, limit)
+                originalCount = stations.size
+                stations.distinctBy { stationModel ->
                         stationModel.url_resolved
                     }.map { stationModel ->
                         RadioModel(
@@ -40,7 +42,7 @@ class SearchStationsUseCase(
                         favoriteStationIds.value.contains(radioModel.stationuuid)
                     }
             }
-            onSuccess(result)
+            onSuccess(result, originalCount)
         } catch (e: Exception) {
             ensureActive()
             Log.e(SearchStationsUseCase::class.java.name, e.message ?: "Unknown error")

@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import praeterii.radio.domain.model.RadioModel
 
 @Dao
-interface FavoriteDao {
+internal interface FavoriteDao {
     @Query("SELECT * FROM favorites")
     fun getAllFavorites(): Flow<List<RadioModel>>
 

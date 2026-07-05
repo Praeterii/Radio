@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import praeterii.radio.domain.model.RadioModel
 
 @Database(entities = [RadioModel::class], version = 1, exportSchema = false)
-abstract class RadioDatabase : RoomDatabase() {
+internal abstract class RadioDatabase : RoomDatabase() {
     abstract fun favoriteDao(): FavoriteDao
 
     companion object {

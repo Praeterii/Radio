@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -61,11 +62,13 @@ internal fun RadioScreen(
     showPlayerBar: Boolean,
     isPlaying: Boolean,
     isLoading: Boolean,
+    isLoadingMore: Boolean,
     errorMessage: String?,
     onStationClick: (RadioModel) -> Unit,
     onToggleFavorite: (RadioModel) -> Unit,
     onTogglePlayPause: () -> Unit,
     onSettingsClick: () -> Unit,
+    onLoadMore: () -> Unit,
     onRetry: () -> Unit,
 ) {
     val configuration = LocalConfiguration.current
@@ -120,11 +123,13 @@ internal fun RadioScreen(
             showPlayerBar = showPlayerBar,
             isPlaying = isPlaying,
             isLoading = isLoading,
+            isLoadingMore = isLoadingMore,
             errorMessage = errorMessage,
             isLandscape = isLandscape,
             onStationClick = onStationClick,
             onToggleFavorite = onToggleFavorite,
             onTogglePlayPause = onTogglePlayPause,
+            onLoadMore = onLoadMore,
             onRetry = onRetry,
             modifier = Modifier.padding(paddingValues)
         )
@@ -148,11 +153,13 @@ private fun RadioContent(
     showPlayerBar: Boolean,
     isPlaying: Boolean,
     isLoading: Boolean,
+    isLoadingMore: Boolean,
     errorMessage: String?,
     isLandscape: Boolean,
     onStationClick: (RadioModel) -> Unit,
     onToggleFavorite: (RadioModel) -> Unit,
     onTogglePlayPause: () -> Unit,
+    onLoadMore: () -> Unit,
     onRetry: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -185,6 +192,11 @@ private fun RadioContent(
                             items = stations,
                             key = { _, station -> station.stationuuid }
                         ) { index, station ->
+                            if (index >= stations.size - 20) {
+                                LaunchedEffect(stations.size) {
+                                    onLoadMore()
+                                }
+                            }
                             StationItem(
                                 station = station,
                                 isFavorite = favoriteStationIds.contains(station.stationuuid),
@@ -193,6 +205,19 @@ private fun RadioContent(
                             )
                             if (index < stations.lastIndex) {
                                 FadingDivider()
+                            }
+                        }
+
+                        if (isLoadingMore) {
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
                             }
                         }
                     }
@@ -252,12 +277,14 @@ private fun RadioScreenPreview(
                 artworkUri = null,
                 isPlaying = state.isPlaying,
                 isLoading = false,
+                isLoadingMore = false,
                 showPlayerBar = state.currentlyPlayingStation != null,
                 errorMessage = null,
                 onStationClick = {},
                 onToggleFavorite = {},
                 onTogglePlayPause = {},
                 onSettingsClick = {},
+                onLoadMore = {},
                 onRetry = {}
             )
         }
